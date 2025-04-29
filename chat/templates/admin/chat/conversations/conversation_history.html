@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_list jazzmin %}
+
+
+{% block title %} Chat | CygnusAlpha {% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/conversations/conversation_history.css' %}">
+<style>
+    .content-wrapper .border-bottom {
+        border-bottom: 0px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-section row">
+    <div class="col-md-9">
+            <input type="text" id="searchInput" placeholder="Enter Client Reference ID" onkeydown="checkEnterKey(event)">
+            <button id="searchButton" onclick="handleSearch()">
+                <span id="buttonText">Search</span>
+                <div id="loader" class="loader" style="display:none;"></div>
+            </button>
+    </div>
+     <div class="col-md-2" style="display:flex;">
+            <input type="text" id="client_identifier_id" placeholder="Enter Client Identifier" onkeydown="checkEnterKey(event)">
+            <button id="client_identifier_btn_id" class="searchButton" onclick="get_recent_sessions()" style="margin-left:5px">
+                <span id="client_identifier_buttonText">Search</span>
+                <div id="client_identifier_loader" class="loader" style="display:none;"></div>
+            </button>
+    </div>
+
+</div>
+
+<div class="chat-container">
+    <!-- Messages will be rendered dynamically here -->
+</div>
+<div class="recent-sessions">
+    <h4 class="recent-sessions-title">Recent Sessions</h4>
+    <hr>
+    <div id="recent-sessions"></div>
+</div>
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="{% static 'vendor/markdown/markdown.js' %}"></script>
+<script src="{% static 'js/admin/conversations/conversation_history.js' %}"></script>
+
+{% endblock %}

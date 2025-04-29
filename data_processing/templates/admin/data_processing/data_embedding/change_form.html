@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{%load static%}
+
+
+{% block extrastyle %}
+{{block.super}}
+
+<link rel="stylesheet" href="{% static 'data_processing/css/admin/custom.css' %}">
+{% endblock %}
+
+{% block extrajs %}
+{{block.super}}
+
+<script type="text/javascript" src="{% static 'data_processing/js/admin/data_embedding.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_processing/js/admin/label_property_selection.js' %}"></script>
+{% endblock %}

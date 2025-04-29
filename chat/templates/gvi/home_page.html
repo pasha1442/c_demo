@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        .gvi_main_container {
+            background: url('https://gitaforvisionaries.com/wp-content/uploads/2023/04/bg-flower.png') no-repeat top center;
+            background-size: 400px;
+            height: 100vh;
+            text-align: center;
+            margin: 0 auto;
+            overflow: auto;
+            background-color: #fff;
+            display: flex;
+            flex-flow: column;
+        }
+        
+        .loading-indicator {
+            text-align:center;
+            width:100%;
+            margin:20px;
+            font-size:22px;
+        }
+        
+        /* gvi top-section css start */
+        .gvi_logo img {
+            margin-top: 40px;
+            max-width: 200px;
+            height: auto;
+        }
+        
+        .gvi_title h1 {
+            font-size: 22px;
+            color: #CF5B35;
+        }
+        
+        .gvi_intro_heading {
+            color: #4C182C;
+            font-size: 20px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        .gvi_intro_subHeading {
+            color: #323C4A;
+            font-size: 20px;
+        }
+        
+        .gvi_intro_section {
+            margin: 30px 0 60px;
+        }
+        
+        .gvi_searchBox {
+            background: linear-gradient(135deg, #FEA465, #FB6A6F);
+            max-width: 400px;
+            border-radius: 50px;
+            margin: 0 auto;
+            padding: 2px;
+        }
+        
+        .gvi_searchBox_inner {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            border-radius: 50px;
+            padding: 10px 15px;
+        }
+        
+        .gvi_searchBox input {
+            border: 0;
+            height: 36px;
+            font-size: 16px;
+            width: 400px;
+            flex: 1;
+        }
+        
+        .gvi_searchBox input:focus-visible {
+            outline: 0;
+        }
+        
+        .gvi_searchBox_inner button {
+            all: unset;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .gvi_search_text {
+            padding: 10px;
+            color: #B4B1B1;
+            font-size: 16px;
+        }
+        /* gvi top-section css end */
+        
+        /* gvi chat-section css start */
+        .gvi_chat_container {
+            background: linear-gradient(180deg, #FEA465, #FB6A6F);
+            margin-top: 20px;
+            padding: 30px 10px 10px;
+            flex: 1;
+        }
+        
+        .gvi_chat_section h2 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .gvi_chat_suggestion__List {
+            list-style: none;
+            margin: 15px auto;
+            max-width: 400px;
+            cursor: pointer;
+            display: flex;
+            flex-flow: column;
+        }
+        
+        .gvi_chat_suggestion__item {
+            margin-bottom: 10px;
+            background: rgb(255 255 255 / 30%);
+            line-height: 1.4;
+            font-size: 16px;
+            padding: 5px 12px;
+            border-radius: 12px;
+        }
+        
+        .gvi_chat_suggestion__item:hover {
+            background: rgb(255 255 255 / 40%);
+        }
+        
+        
+        @media (max-width: 767px) {
+            .gvi_main_container {
+                background-size: 350px;
+            }
+            .gvi_top_container {
+                padding-inline: 10px;
+            }
+            .gvi_logo img {
+                max-width: 150px;
+            }
+            .gvi_title h1 {
+                font-size: 18px;
+            }
+            .gvi_intro_heading {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            .gvi_intro_subHeading,
+            .gvi_search_text,
+            .gvi_chat_suggestion__item {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+            .gvi_chat_container {
+                background-image: url(https://cdn.kindlife.in/images/ui_icon/gvi-gradient-imgBg.png);
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+        }
+        /* gvi chat-section css end */
+        
+    </style>
+</head>
+<body>
+    <div class="gvi_main_container">
+        <!-- GVI top section start -->
+        <div class="gvi_top_container">
+            <div class="gvi_logo_section">
+                <div class="gvi_logo">
+                    <img src="https://cdn.kindlife.in/images/ui_icon/gvi-logo2.png" alt="Logo" width="116" height="109">
+                </div>
+                <div class="gvi_title">
+                    <h1>Gita for Visionaries</h1>
+                </div>
+            </div>
+            <div class="gvi_intro_section">
+                <h4 class="gvi_intro_heading">
+                    Hare Krishna 🙌 Mataji / Prabhuji,<br>
+                    my name is Gopal Vidyapati Idam (GVI)<br>
+                    and I am in the service of the lord.</h4>
+                <p class="gvi_intro_subHeading">I am here to help you to decode Srimad Bhagwat Gita Mysteries. </p>
+            </div>
+            <div class="gvi_search_section">
+                <div class="gvi_searchBox">
+                    <div class="gvi_searchBox_inner">
+                        <input type="text" id="shloka_no" class="search-box" placeholder="Search Shloka by chapter no.">
+                        <button id="searchButton" class="search-button"><img src="https://cdn.kindlife.in/images/ui_icon/gvi-rigthArrow-GrdBtn.png"></button>
+                    </div>
+                </div>
+                <p class="gvi_search_text">Search from chapter 1-18.verse, ex. 16.3</p>
+            </div>
+        </div>
+        <!-- GVI top section end -->
+
+        <!-- GVI chat-section start -->
+        <div class="gvi_chat_container">
+            <div class="gvi_chat_section">
+                <h2>Chat to unlock Life's Mysteries</h2>
+                <div class="gvi_searchBox">
+                    <div class="gvi_searchBox_inner">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="🙌 Hare Krishna! ask your question... ">
+                        <button id="chatSend" class="chat-send"><img src="https://cdn.kindlife.in/images/ui_icon/gvi-rigthArrow-GrdBtn.png"></button>
+                    </div>
+                </div>
+                <div class="gvi_chat_suggestion">
+                    <ul class="gvi_chat_suggestion__List">
+                        <li class="gvi_chat_suggestion__item">How Can i develop a deeper sense of wisdom and understanding?</li>
+                        <li class="gvi_chat_suggestion__item">How Can i overcome my sense of separation from the divine?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- GVI chat-section end -->
+        
+    </div>
+    <script>
+        function triggerClick(buttonId) {
+            document.getElementById(buttonId).click();
+        }
+        document.getElementById('shloka_no').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                triggerClick('searchButton');
+            }
+        });
+        document.getElementById('chatInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                triggerClick('chatSend');
+            }
+        });
+        document.getElementById('searchButton').addEventListener('click', function () {
+            /*function blinkBorder(elementId) {
+                const element = document.getElementById(elementId);
+                const originalBorderColor = window.getComputedStyle(element).borderColor;
+
+                element.style.borderColor = 'red';
+
+                setTimeout(() => {
+                    element.style.borderColor = originalBorderColor;
+                }, 300);
+            }*/
+            const shlokaNo = document.getElementById('shloka_no').value;
+            const shlokaPattern = /^(1[0-8]|[1-9])\.[1-6]$/;
+            if (!shlokaNo || !shlokaPattern.test(shlokaNo)) {
+                //blinkBorder('shloka_no');
+                return;
+            }
+            const basePath = window.location.origin + '/gvi/search/';
+            window.location.href = basePath + shlokaNo;
+        });
+        document.getElementById('chatSend').addEventListener('click', function () {
+            const userInput = document.getElementById('chatInput').value.trim();
+            if(userInput){
+                localStorage.setItem('userInput', userInput);
+                const basePath = window.location.origin + '/gvi/chat/';
+                window.location.href = basePath;
+            }
+
+        });
+        const suggestionItems = document.querySelectorAll('.gvi_chat_suggestion__item');
+        suggestionItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const userInput = document.getElementById('chatInput');
+                userInput.value = this.innerHTML;
+            });
+        });
+    </script>
+</body>
+</html>

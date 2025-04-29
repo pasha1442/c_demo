@@ -1,0 +1,267 @@
+class DataEnrichmentPartitionManager {
+    constructor() {
+        this.enrichmentId = this.getEnrichmentId();
+        this.currentPage = 1;
+        this.pageSize = 10;
+        this.statusFilter = '';
+        this.isLoading = false;
+        this.setupUI();
+        this.loadPartitions();
+    }
+
+    getEnrichmentId() {
+        // Get enrichment ID from URL or hidden input
+        const urlMatch = window.location.pathname.match(/\/data_processing\/dataenrichment\/(\d+)\//);
+        if (urlMatch) return urlMatch[1];
+        
+        const input = document.querySelector('input[name="enrichment_id"]');
+        return input ? input.value : null;
+    }
+
+    setupUI() {
+        // Hide original table and create new container
+        const originalTable = document.querySelector('.inline-group table');
+        if (originalTable) originalTable.style.display = 'none';
+
+        // Create toast container
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+
+        // Create and insert new table container
+        const container = document.createElement('div');
+        container.className = 'data-enrichment-container';
+        container.innerHTML = `
+            <div class="controls">
+                <div class="status-filter">
+                    <label for="status-select">Filter by Status:</label>
+                    <select id="status-select" class="form-select">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="done">Done</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Input File</th>
+                            <th>Output File</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Processed At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="partitions-table-body"></tbody>
+                </table>
+            </div>
+            <div class="pagination-controls">
+                <button id="prev-page" class="btn btn-outline-secondary">&laquo; Previous</button>
+                <span id="page-info" class="mx-3">Page 1</span>
+                <button id="next-page" class="btn btn-outline-secondary">Next &raquo;</button>
+            </div>
+            <div id="loading-indicator" class="loading-indicator text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>`;
+
+        originalTable.parentNode.insertBefore(container, originalTable);
+
+        // Add event listeners
+        document.getElementById('status-select').addEventListener('change', (e) => {
+            this.statusFilter = e.target.value;
+            this.currentPage = 1;
+            this.loadPartitions();
+        });
+
+        document.getElementById('prev-page').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.loadPartitions();
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.currentPage++;
+            this.loadPartitions();
+        });
+    }
+
+    async loadPartitions() {
+        if (!this.enrichmentId || this.isLoading) return;
+
+        try {
+            this.setLoading(true);
+
+            const url = new URL('/api/v1/data-processing/data-enrichment/get-partitioned-files-list/', window.location.origin);
+            url.searchParams.append('enrichment_id', this.enrichmentId);
+            url.searchParams.append('page', this.currentPage);
+            url.searchParams.append('page_size', this.pageSize);
+            if (this.statusFilter) {
+                url.searchParams.append('status', this.statusFilter);
+            }
+
+            const response = await fetch(url.toString(), {
+                headers: {
+                    'X-CSRFToken': this.getCsrfToken()
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load partitions');
+            }
+
+            const data = await response.json();
+            this.renderPartitions(data.results);
+            this.updatePagination(data.pagination);
+
+        } catch (error) {
+            console.error('Error loading partitions:', error);
+            this.showToast('Failed to load partitions', 'error');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    renderPartitions(partitions) {
+        const tbody = document.getElementById('partitions-table-body');
+        tbody.innerHTML = '';
+
+        partitions.forEach(partition => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    ${partition.input_file_url ? 
+                        `<a href="${partition.input_file_url}" class="file-link" target="_blank">${partition.input_file_path}</a>` :
+                        partition.input_file_path}
+                </td>
+                <td>
+                    ${partition.output_file_url ? 
+                        `<a href="${partition.output_file_url}" class="file-link" target="_blank">${partition.output_file_path}</a>` :
+                        partition.output_file_path || '-'}
+                </td>
+                <td>
+                    <div class="d-flex flex-column gap-2">
+                        <select class="form-select status-select" data-partition-id="${partition.id}">
+                            <option value="pending" ${partition.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${partition.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="done" ${partition.status === 'done' ? 'selected' : ''}>Done</option>
+                            <option value="error" ${partition.status === 'error' ? 'selected' : ''}>Error</option>
+                        </select>
+                        ${partition.error_message ? 
+                            `<div class="error-message">${partition.error_message}</div>` : ''}
+                    </div>
+                </td>
+                <td>${this.formatDate(partition.created_at)}</td>
+                <td>${partition.processed_at ? this.formatDate(partition.processed_at) : '-'}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm btn-save" data-partition-id="${partition.id}">
+                        Save
+                    </button>
+                </td>`;
+
+            tbody.appendChild(tr);
+
+            // Add event listener for save button
+            const saveBtn = tr.querySelector('.btn-save');
+            saveBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const select = tr.querySelector('.status-select');
+                await this.updatePartitionStatus(partition.id, select.value);
+            });
+        });
+    }
+
+    async updatePartitionStatus(partitionId, newStatus) {
+        if (this.isLoading) return;
+
+        try {
+            this.setLoading(true);
+
+            const response = await fetch('/api/v1/data-processing/data-enrichment/get-partitioned-files-list/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCsrfToken()
+                },
+                body: JSON.stringify({
+                    partition_id: partitionId,
+                    status: newStatus
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update status');
+            }
+
+            const data = await response.json();
+            this.showToast('Status updated successfully', 'success');
+            
+            // Refresh the table to show updated data
+            await this.loadPartitions();
+
+        } catch (error) {
+            console.error('Error updating status:', error);
+            this.showToast('Failed to update status', 'error');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    updatePagination(pagination) {
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+
+        prevBtn.disabled = !pagination.has_previous;
+        nextBtn.disabled = !pagination.has_next;
+
+        pageInfo.textContent = `Page ${pagination.current_page} of ${pagination.num_pages} (${pagination.total_items} items)`;
+    }
+
+    setLoading(isLoading) {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.style.display = isLoading ? 'block' : 'none';
+        this.isLoading = isLoading;
+
+        // Disable all interactive elements while loading
+        const elements = document.querySelectorAll('.btn, .form-select, .status-select');
+        elements.forEach(el => el.disabled = isLoading);
+    }
+
+    showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = message;
+
+        const container = document.querySelector('.toast-container');
+        container.appendChild(toast);
+
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    formatDate(dateString) {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleString();
+    }
+
+    getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+}
+
+// Initialize the manager when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new DataEnrichmentPartitionManager();
+});

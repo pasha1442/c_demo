@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact us</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        .chat-body {
+            overflow: scroll;
+            height: 400px;
+        }
+        .gvi_main_container {
+            background: url('https://gitaforvisionaries.com/wp-content/uploads/2023/04/bg-flower.png') no-repeat top center;
+            background-size: 400px;
+            height: 100vh;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            display: flex;
+            flex-flow: column;
+        }
+        
+        .gvi_header__backBtn {
+            display: none;
+        }
+        
+        .gvi_header {
+            padding: 30px 0;
+        }
+        
+        .gvi_header__logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gvi_header__logo img {
+            max-width: 120px;
+            cursor: pointer;
+        }
+        
+        .gvi_header__logo h2 {
+            font-size: 22px;
+            color: #CF5B35;
+        }
+        
+        .gvi_chat_search_container {
+            background: linear-gradient(180deg, #a8bdf0, #2659d9);
+            margin: 0 auto;
+            padding: 20px 10px;
+            display: flex;
+            align-items: center;
+            width:600px;
+        }
+        .gvi_chat_ticket_route_container {
+
+            margin: 0 auto;
+            padding: 20px 10px;
+            display: flex;
+            align-items: center;
+            width:600px;
+
+        }
+        .gvi_chat_ticket_route_response_container {
+
+            margin: 0 auto;
+            padding: 20px 10px;
+            display: flex;
+            width:600px;
+
+        }
+        .gvi_search {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            border-radius: 50px;
+            padding: 10px 15px;
+            max-width: 400px;
+            margin: 0 auto;
+            border: 2px solid #D9D9D9;
+        }
+        
+        .gvi_search input {
+            border: 0;
+            height: 36px;
+            font-size: 16px;
+            width: 400px;
+            flex: 1;
+            color: #222226;
+        }
+        
+        .gvi_search input:focus-visible {
+            outline: 0;
+        }
+        
+        .gvi_search button {
+            all: unset;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .gvi_chat_container {
+            flex: 1;
+            max-width: 600px;
+            margin: 10px auto 0;
+            width: 100%;
+            padding-bottom: 100px;
+        }
+        
+        .chat-message {
+            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 10px;
+            line-height: 1.4;
+            font-size: 15px;
+            color: #000000;
+            font-weight: 500;
+            width: fit-content;
+            background: rgb(150 183 237 / 50%);
+            max-width: 75%;
+            word-wrap: break-word;
+            text-align: left;
+        }
+        
+        .chat-message.user {
+            margin-left: auto;
+            background: #007aff;
+            text-align: right;
+            color: white;
+        }
+        
+        .message-content :is(ol,ul) {
+            list-style-position: inside;
+        }
+        /* bouncing dots css start */
+        .bouncing-dots {
+            display: inline-block;
+            position: relative;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .bouncing-dots div {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #FB6A6F;;
+            top: 8px;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        
+        .bouncing-dots div:nth-child(1) {
+            left: 4px;
+            animation: bouncing-dots1 0.6s infinite;
+        }
+        
+        .bouncing-dots div:nth-child(2) {
+            left: 4px;
+            animation: bouncing-dots2 0.6s infinite;
+        }
+        
+        .bouncing-dots div:nth-child(3) {
+            left: 16px;
+            animation: bouncing-dots2 0.6s infinite;
+        }
+        
+        .bouncing-dots div:nth-child(4) {
+            left: 28px;
+            animation: bouncing-dots3 0.6s infinite;
+        }
+        
+        @keyframes bouncing-dots1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes bouncing-dots2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(12px, 0); }
+        }
+        
+        @keyframes bouncing-dots3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        /* bouncing dots css end */
+        
+        .gvi_up_arrow {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        .gvi_up_arrow img {
+            width: 60px;
+        }
+
+        @media (max-width: 767px) {
+            .gvi_main_container {
+                padding-inline: 10px;
+                background-size: 350px;
+            }
+            .gvi_header {
+                padding: 15px 0;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .gvi_header__logo h2 {
+                font-size: 18px;
+            }
+            .gvi_header__backBtn {
+                display: block;
+                position: absolute;
+                left: 10px;
+                cursor: pointer;
+            }
+            .chat-message {
+                font-size: 14px;
+                line-height: 1.3;
+            }
+            .gvi_up_arrow img {
+                width: 40px;
+            }
+            .generate-summary{
+                position: unset !important;
+                right: 0% !important;
+            }
+        }
+        .invalid {
+            background-color: #ffeeee;
+        }
+        /* form css start */
+        .contact-form-container {
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+
+        /* Form structure */
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Form group */
+        .form-group {
+            text-align: justify;
+            margin-bottom: 20px;
+        }
+
+        /* Labels */
+        .form-label {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+            display: block;
+        }
+
+        /* Input fields */
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #000000;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+
+        /* Input fields hover and focus state */
+        .form-input:focus,
+        .form-select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Dropdown container */
+        .dropdown-container {
+            position: relative;
+        }
+
+        .form-select {
+            appearance: none; /* Remove default arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140"><polygon points="70,98 10,38 130,38" fill="black"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+        }
+
+        /* Submit button styling */
+        .form-submit-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-submit-button:hover {
+            background-color: #0056b3;
+        }
+        /* form css end */
+
+        .generate-summary{
+            position: absolute;
+            right: 10%;
+        }
+
+        .generate-summary-btn{
+            background-color: #ffe066; 
+            color: #333;
+            border: none;
+            padding: 12px 30px; 
+            font-size: 16px;
+            border-radius: 50px; 
+            cursor: pointer;
+            transition: background-color 0.3s ease; 
+            text-align: center;
+        }
+        .rounded-button:hover {
+            background-color: #ffcb00;
+        }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="gvi_main_container">
+        <div class="gvi_header">
+            <div class="gvi_header__backBtn" id="gvi_header__backBtn"><img src="https://cdn.kindlife.in/images/ui_icon/backBtn-black.svg"> </div>
+            <div class="gvi_header__logo" id="gvi_header__logo">
+                <figure><img id="gvi_header__logo_img" src="{% static 'theme/img/onemain-logo.png' %}"></figure>
+            </div>
+        </div>
+
+        <div class="contact-form-container" style="min-width:600px;">
+            <form class="contact-form">
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" class="form-input" required>
+                </div>
+        
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+        
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-input" required>
+                </div>
+        
+                <!-- Subject Dropdown -->
+                <div class="form-group">
+                    <label for="message_type" class="form-label">Subject</label>
+                    <div class="dropdown-container">
+                        <select name="message_type" id="message_type" class="form-select" required>
+                            <option value="">Select message type...</option>
+                            <optgroup label="New Customer">
+                                <option value="new_customer-I need help with my application">I need help with my application</option>
+                            </optgroup>
+                            <optgroup label="Existing Customer">
+                                <option value="existing_customer-I am having trouble making a payment">I am having trouble making a payment</option>
+                                <option value="existing_customer-I am unable to log in or create an online account">I am unable to log in or create an online account</option>
+                                <option value="existing_customer-I have questions about my account">I have questions about my account</option>
+                                <option value="existing_customer-I have questions about my rewards">I have questions about my rewards</option>
+                                <option value="existing_customer-I have questions about cancelling or changing my payment">I have questions about cancelling or changing my payment</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="other-I am having technical issues with the website">I am having technical issues with the website</option>
+                                <option value="other-I want to provide feedback on my experience">I want to provide feedback on my experience</option>
+                                <option value="other-I have other questions">I have other questions</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <!-- <div class="form-group">
+                    <button type="submit" class="form-submit-button">Submit</button>
+                </div> -->
+            </form>
+        </div>
+
+        <div class="gvi_chat_container">
+            <div class="chat-body" id="chatBody">
+                <!-- Chat messages will be appended here -->
+            </div>
+        </div>
+        
+
+        <div class="gvi_chat_search_container" style="min-width:600px;">
+            <div class="gvi_search">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Explain your issue">
+                <button id="chatSend" class="chat-send"><img src="https://cdn.kindlife.in/images/ui_icon/gvi-rigthArrow-GrdBtn.png"></button>
+            </div>
+
+        </div>
+
+        <div class="gvi_chat_ticket_route_container" style="min-width:600px;">
+             <button class="generate-summary-btn" disabled id="routeTicket"><b>Route Ticket</b></button>
+        </div>
+        <div class="gvi_chat_ticket_route_response_container" id="ticket_route_response_container_id">
+
+        </div>
+        <div class="gvi_up_arrow" id="gvi_up_arrow" onclick="topFunction()"><img src="https://cdn.kindlife.in/images/ui_icon/upArrow-CircleBtn.svg"></div>
+    </div>
+
+<script>
+    const mybutton = document.getElementById("gvi_up_arrow");
+    window.onscroll = function() {scrollFunction()};
+    
+    function scrollFunction() {
+        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+    window.onload = function(){
+        session_id = generateUUID();
+        const userInput = localStorage.getItem('userInput');
+        if(userInput){
+            const chatInput = document.getElementById('chatInput');
+            chatInput.value = userInput;
+            document.getElementById('chatSend').click();
+            localStorage.removeItem('userInput');
+        }
+    }
+    session_id = generateUUID();
+    function getFormData() {
+        return {
+            name: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            subject: document.getElementById('message_type').value
+        };
+    }
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    function setInvalid(elementId) {
+        const element = document.getElementById(elementId);
+        element.style.borderColor = 'red';
+        element.classList.add('invalid');
+    }
+
+    function setValid(elementId) {
+        const element = document.getElementById(elementId);
+        element.style.borderColor = '';
+        element.classList.remove('invalid');
+    }
+
+    function validateForm(formData) {
+        let isValid = true;
+        
+        if (!formData.name) {
+            setInvalid('fullName');
+            isValid = false;
+        } else {
+            setValid('fullName');
+        }
+
+        if (!formData.email || !isValidEmail(formData.email)) {
+            setInvalid('email');
+            isValid = false;
+        } else {
+            setValid('email');
+        }
+
+        if (!formData.phone) {
+            setInvalid('phone');
+            isValid = false;
+        } else {
+            setValid('phone');
+        }
+
+        return isValid;
+    }
+
+    function call_chat_api(messageText) {
+        var chatBody = document.getElementById('chatBody');
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'chat-message bot';
+        botMessageDiv.innerHTML = `<div class="message-content"><div class="bouncing-dots"><div></div><div></div><div></div><div></div></div></div>`;
+        chatBody.appendChild(botMessageDiv);
+        const formData = getFormData();
+        if(!formData.phone){
+            formData.phone = '0000000000'
+        }
+        console.log('chat_phone',formData.phone);
+        fetch('/api/v1/api-controller/invoke-service/omf-contact-us-chat/', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer kl-9544ea96-b1af-4446-9cef-cddelkjuhgyt',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobile: formData.phone,
+                text: messageText,
+                session_id: session_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const gvi_message = data.data;
+            const formatted_giva_message = marked.parse(gvi_message);
+            botMessageDiv.innerHTML = `<div class="message-content">${formatted_giva_message}</div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+            document.getElementById('routeTicket').disabled = false;
+
+        })
+        .catch(error => {
+            console.error("Error: ", error);
+            botMessageDiv.innerHTML = `<div class="message-content">An error occurred</div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageTypeSelect = document.getElementById('message_type');
+        if (messageTypeSelect) {
+            messageTypeSelect.addEventListener('change', function() {
+                const formData = getFormData();
+                if (validateForm(formData)) {
+                    call_chat_api(this.value);
+                } else {
+                    this.value = "";
+                }
+            });
+        }
+
+        const chatSendButton = document.getElementById('chatSend');
+        if (chatSendButton) {
+            chatSendButton.addEventListener('click', function() {
+                const chatInput = document.getElementById('chatInput');
+                const chatBody = document.getElementById('chatBody');
+                const messageText = chatInput.value.trim();
+
+                if (messageText === '') return;
+
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'chat-message user';
+                userMessageDiv.innerHTML = `<div class="message-content">${messageText}</div>`;
+                chatBody.appendChild(userMessageDiv);
+
+                chatInput.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                call_chat_api(messageText);
+            });
+        }
+
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    document.getElementById('chatSend').click();
+                }
+            });
+        }
+
+        const backButton = document.getElementById('gvi_header__backBtn');
+        if (backButton) {
+            backButton.addEventListener('click', function() {
+                const basePath = window.location.origin + '/gvi/home/'; 
+                window.location.href = basePath;
+            });
+        }
+
+        const logoImg = document.getElementById('gvi_header__logo_img');
+        if (logoImg) {
+            logoImg.addEventListener('click', function() {
+                const basePath = window.location.origin + '/gvi/home/';
+                window.location.href = basePath;
+            });
+        }
+    });
+
+    document.getElementById('routeTicket').addEventListener('click', function() {
+        const formData = getFormData();
+        if (validateForm(formData) ) {
+            const chatBody = document.getElementById('ticket_route_response_container_id');
+            // Display bouncing dots
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.innerHTML = `<div class="message-content"><div class="bouncing-dots"><div></div><div></div><div></div><div></div></div></div>`;
+            chatBody.appendChild(botMessageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            const messages = chatBody.getElementsByClassName('message-content');
+
+            let messageList = [];
+            
+            messageList.unshift({
+                role: 'user',
+                content: `Customer name : ${formData.name}, Customer phone number : ${formData.phone}, Customer email : ${formData.email}, Issue: ${formData.subject}`
+            });
+
+            for (let i = 0; i < messages.length-1; i++) {
+                const role = i % 2 === 1 ? 'user' : 'assistant';
+                messageList.push({
+                    role: role,
+                    content: messages[i].innerText
+                });
+            }
+
+            message_data = JSON.stringify(messageList)
+            
+            // Call the API to get the chatbot response
+            fetch('/api/v1/api-controller/invoke-service/omf-ticket-classifier/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer kl-9544ea96-b1af-4446-9cef-cddelkjuhgyt',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mobile: formData.phone,
+                    text: `${message_data}`,
+                    session_id: session_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove bouncing dots
+                const gvi_message = data.data;
+                const formatted_giva_message = marked.parse(gvi_message);
+                botMessageDiv.innerHTML = `<div class="message-content"><h4>Route Ticket Reponse</h4><hr>${formatted_giva_message}</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+                document.getElementById('chatInput').disabled = true;
+            })
+            .catch(error => {
+                // Remove bouncing dots and show error message
+                console.log("Error: ", str(error))
+                botMessageDiv.innerHTML = `<div class="message-content">An error occurred</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            });
+        }
+        
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+
+  <title>Cygnus Alpha</title>
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="{% static 'theme/css/bootstrap.css' %}" />
+
+  <!-- fonts style -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600,700&display=swap" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'theme/css/style.css' %}" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="{% static 'theme/css/responsive.css' %}" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="hero_area">
+    <!-- header section strats -->
+    <div class="hero_bg_box">
+      <div class="img-box">
+        <img src="{% static 'theme/img/futuristic-artificial-intelligence-abstract-design-9cqsh5rq507uxapg.jpg' %}" alt="">
+      </div>
+    </div>
+    <header class="header_section">
+
+      <div class="header_bottom">
+        <div class="container-fluid">
+          <nav class="navbar navbar-expand-lg custom_nav-container">
+            <a class="navbar-brand" href="#">
+              <span>
+                Cygnus Alpha
+              </span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class=""></span>
+            </button>
+
+
+          </nav>
+        </div>
+      </div>
+    </header>
+    <!-- end header section -->
+    <!-- slider section -->
+    <section class=" slider_section ">
+      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div class="container">
+              <div class="row">
+                <div class="col-md-7">
+                  <div class="detail-box">
+                    <h1>
+                      Cygnus Alpha <br>
+                      <span>
+                       AI Assitant for you
+                      </span>
+                    </h1>
+                    <p>
+                      Click on Login to use
+                    </p>
+                    <div class="btn-box">
+                      <!-- <a href="" class="btn-1"> Read more </a> -->
+                      <a href="/admin" class="btn-2"> Login</a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="container idicator_container">
+          <ol class="carousel-indicators">
+            <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+            <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+            <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+    <!-- end slider section -->
+  </div>
+
+
+
+
+
+
+
+
+  <!-- end team section -->
+
+
+
+
+
+
+
+  <script src="{% static 'theme/js/bootstrap.js' %}"></script>
+  <script src="{% static 'theme/js/jquery-3.4.1.min.js' %}"></script>
+  <script src="{% static 'theme/js/custom.js' %}"></script>
+</body>
+
+</html>

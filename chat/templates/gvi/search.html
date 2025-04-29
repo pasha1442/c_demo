@@ -1,0 +1,384 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVI Search Shloka</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        .gvi_main_container {
+            background: url('https://gitaforvisionaries.com/wp-content/uploads/2023/04/bg-flower.png') no-repeat top center;
+            background-size: 400px;
+            height: 100vh;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+        }
+        
+        .loading-indicator {
+            text-align:center;
+            width:100%;
+            margin:20px;
+            font-size: 18px;
+            color: #FB6A6F;
+            font-weight: 600;
+        }
+        
+        /* gvi shlok search page css start */
+        .gvi_header__backBtn {
+            display: none;
+        }
+        
+        .gvi_header {
+            padding: 30px 0;
+        }
+        
+        .gvi_header__logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gvi_header__logo img {
+            max-width: 120px;
+            cursor: pointer;
+        }
+        
+        .gvi_header__logo h2 {
+            font-size: 22px;
+            color: #CF5B35;
+        }
+        
+        .gvi_search {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            border-radius: 50px;
+            padding: 10px 15px;
+            max-width: 400px;
+            margin: 0 auto;
+            border: 2px solid #D9D9D9;
+        }
+        
+        .gvi_search input {
+            border: 0;
+            height: 36px;
+            font-size: 16px;
+            width: 400px;
+            flex: 1;
+            color: #222226;
+        }
+        
+        .gvi_search input:focus-visible {
+            outline: 0;
+        }
+        
+        .gvi_search button {
+            all: unset;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .gvi_search_result {
+            max-width: 800px;
+            margin: 40px auto 60px;
+            text-align: left;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .gvi_search_resultItem {
+            color: #4A4458;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            text-align: justify;
+        }
+        
+        .chapter_no, .in_sanskrit,.in_english_spelling {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .gvi_search_resultItem.shloka_no {
+            color: #B4B1B1;
+        }
+        
+        .gvi_search_resultItem strong {
+            display: inline-block;
+            text-transform: capitalize;
+            color: #000000;
+        }
+        
+        :is(.in_sanskrit, .in_english_spelling, .shloka_no) strong {
+            display: none;
+        }
+        
+        .in_sanskrit .value {
+            color: #FB6A6F;
+            font-weight: 600;
+        }
+        
+        .gvi_action_buttons {
+            display: none;
+        }
+
+        .gvi_action_buttons img {
+            vertical-align: middle;
+        }
+        
+        .copy-button {
+            all: unset;
+            background: rgb(217 217 217 / 40%);
+            color: #323C4A;
+            padding: 0 12px;
+            line-height: 30px;
+            border-radius: 42px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        :is(.shloka_no, .translation, .purport, .url) .gvi_action_buttons {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        
+        .copy-button:hover {
+            background: rgb(217 217 217 / 70%);
+        }
+        
+        .gvi_up_arrow {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        .gvi_up_arrow img {
+            width: 60px;
+        }
+        @media (max-width: 767px) {
+            .gvi_main_container {
+                padding-inline: 10px;
+                background-size: 350px;
+            }
+            .gvi_header {
+                padding: 15px 0;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .gvi_header__backBtn {
+                display: block;
+                position: absolute;
+                left: 10px;
+                cursor: pointer;
+            }
+            .gvi_header__logo h2 {
+                font-size: 18px;
+            }
+            .gvi_search_resultItem {
+                font-size: 14px;
+            }
+            .gvi_up_arrow img {
+                width: 40px;
+            }
+        }
+        
+        /* gvi shlok search page css end */
+    </style>
+</head>
+<body>
+    <div class="gvi_main_container">
+        <div class="gvi_header">
+            <div class="gvi_header__backBtn" id="gvi_header__backBtn"><img src="https://cdn.kindlife.in/images/ui_icon/backBtn-black.svg"></div>
+            <div class="gvi_header__logo" id="gvi_header__logo">
+                <figure><img id="gvi_header__logo_img" src="https://cdn.kindlife.in/images/ui_icon/gvi-logo.png"></figure>
+                <h2>Gita for Visionaries</h2>
+            </div>
+        </div>
+
+        <div class="gvi_search">
+            <input type="text" id="shloka_no" class="search-box" placeholder="Enter Shloka No">
+            <button id="searchButton" class="search-button"><img src="https://cdn.kindlife.in/images/ui_icon/gvi-rigthArrow-GrdBtn.png"></button>
+        </div>
+
+        <div id="result" class="gvi_search_result">
+            {% for key, value in search_results.items %}
+                <div class="gvi_search_resultItem {{key}}">
+                    <strong>{{ key_mapper|get_item:key }}:</strong>
+                    <span class="value"> {{ value }}</span>
+                    <div class="gvi_action_buttons">
+                        {% comment %} <span class="gvi_speaker" onclick="speakText()"> <img src="https://cdn.kindlife.in/images/ui_icon/speaker-icon.svg" width="30" height="30"> </span> {% endcomment %}
+                        <button class="copy-button {{ key }}">Copy</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="gvi_gradient_container"></div>
+        <div class="gvi_up_arrow" id="gvi_up_arrow" onclick="topFunction()"><img src="https://cdn.kindlife.in/images/ui_icon/upArrow-CircleBtn.svg"></div>
+    </div>
+    
+    <script>
+        const key_mapper = {
+            'chapter_no': 'Chapter',
+            'in_english_spelling': null,
+            'in_sanskrit': null,
+            'shloka_no': null,
+            'purport': 'Purport',
+            'translation': 'Translation',
+            'url': 'Source'
+        };
+        
+        const ordered_keys = ['chapter_no', 'in_sanskrit', 'in_english_spelling', 'shloka_no', 'translation', 'purport', 'url'];
+        const mybutton = document.getElementById("gvi_up_arrow");
+        window.onscroll = function() {scrollFunction()};
+        function scrollFunction() {
+            if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                mybutton.style.display = "block";
+            } else {
+                mybutton.style.display = "none";
+            }
+        }
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        function createCopyButton(key, parentElement) {
+            const actionItems = document.createElement('div');
+            actionItems.classList.add('gvi_action_buttons');
+            const copyButton = document.createElement('button');
+            copyButton.classList.add('copy-button', key);
+            copyButton.textContent = 'Copy';
+            copyButton.addEventListener('click', () => handleCopyClick(copyButton, key));
+            actionItems.appendChild(copyButton)
+            parentElement.appendChild(actionItems);
+        }
+        
+        function handleCopyClick(button, key) {
+            let textToCopy;
+            if (key === 'shloka_no') {
+                const allSearchResults = button.closest('#result');
+                textToCopy = ['in_sanskrit', 'in_english_spelling', 'shloka_no']
+                    .map(cls => allSearchResults.querySelector(`.${cls} span`).textContent.trim())
+                    .join('\n');
+            } else {
+                textToCopy = button.parentElement.previousElementSibling.textContent.trim();
+            }
+        
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => updateButtonText(button))
+                .catch(err => console.error('Failed to copy: ', err));
+        }
+        
+        function updateButtonText(button) {
+            button.textContent = 'Copied!';
+            setTimeout(() => button.textContent = 'Copy', 1500);
+        }
+        
+        function createResultItem(key, value) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `gvi_search_resultItem ${key}`;
+        
+            if (key_mapper[key]) {
+                const keyElement = document.createElement('strong');
+                keyElement.textContent = `${key_mapper[key]}: `;
+                itemDiv.appendChild(keyElement);
+            }
+        
+            const valueElement = document.createElement('span');
+            valueElement.textContent = ' '+value;
+            valueElement.classList.add('value');
+            itemDiv.appendChild(valueElement);
+        
+            createCopyButton(key, itemDiv);
+        
+            return itemDiv;
+        }
+        
+        function displayResults(data, resultDiv) {
+            resultDiv.innerHTML = '';
+            ordered_keys.forEach(key => {
+                const value = data[key];
+                if (value) {
+                    const itemDiv = createResultItem(key, value);
+                    resultDiv.appendChild(itemDiv);
+                }
+            });
+        }
+        
+        function showError(message, resultDiv) {
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error';
+            errorElement.innerHTML = message;
+            resultDiv.prepend(errorElement);
+        }
+        
+        function fetchShloka(shlokaNo) {
+            return fetch(`/api/geetashloka?shloka_no=${shlokaNo}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer kl-9544ea96-b1af-4446-9cef-cdde602733a3',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json());
+        }      
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const shlokaNo = document.getElementById('shloka_no').value.trim();
+            const resultDiv = document.getElementById('result');
+            const shlokaPattern = /^(1[0-8]|[1-9])\.[1-6]$/;
+            if (!shlokaNo || !shlokaPattern.test(shlokaNo)) {
+                showError('Please enter a Shloka number in the format 3.4 ...', resultDiv);
+                return;
+            }
+        
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'loading-indicator';
+            loadingIndicator.innerHTML = 'Loading...';
+            resultDiv.prepend(loadingIndicator);
+            
+            fetchShloka(shlokaNo)
+                .then(data => {
+                    resultDiv.removeChild(loadingIndicator);
+                    if (data.error) {
+                        showError(data.error, resultDiv);
+                    } else {
+                        displayResults(data.data, resultDiv);
+                    }
+                })
+                .catch(error => {
+                    resultDiv.removeChild(loadingIndicator);
+                    showError(`An error occurred: ${error.message}`, resultDiv);
+                });
+        });
+        
+        // For existing copy buttons
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => handleCopyClick(button, button.classList[1]));
+        });
+
+        document.getElementById('gvi_header__backBtn').addEventListener('click', function() {
+            const basePath = window.location.origin + '/gvi/home/';
+            window.location.href = basePath;
+        });
+
+        document.getElementById('gvi_header__logo_img').addEventListener('click', function() {
+            const basePath = window.location.origin + '/gvi/home/';
+            window.location.href = basePath;
+        });
+    </script>
+
+</body>
+</html>

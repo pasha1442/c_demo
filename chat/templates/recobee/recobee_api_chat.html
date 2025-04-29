@@ -1,0 +1,408 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recobee Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        .gvi_main_container {
+            background-size: 400px;
+            height: 100vh;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #000000;
+            display: flex;
+            flex-flow: column;
+        }
+        
+        
+        .gvi_header__backBtn {
+            display: none;
+        }
+        
+        .gvi_header {
+            padding: 30px 0;
+        }
+        
+        .gvi_header__logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gvi_header__logo img {
+            max-width: 120px;
+            cursor: pointer;
+        }
+        
+        .gvi_header__logo h2 {
+            font-size: 22px;
+            color: #d9e7e5;
+        }
+        
+        .gvi_chat_search_container {
+            background: linear-gradient(180deg, #dbe462b0, #85992d);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 10px;
+        }
+        
+        .gvi_search {
+            background: #e7f3f3;
+            display: flex;
+            align-items: center;
+            border-radius: 50px;
+            padding: 10px 15px;
+            max-width: 400px;
+            margin: 0 auto;
+            border: 2px solid #e7f3f3;
+        }
+        
+        .gvi_search input {
+            border: 0;
+            height: 36px;
+            font-size: 16px;
+            width: 400px;
+            flex: 1;
+            color: #222226;
+        }
+        
+        .gvi_search input:focus-visible {
+            outline: 0;
+        }
+        
+        .gvi_search button {
+            all: unset;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .gvi_chat_container {
+            flex: 1;
+            max-width: 600px;
+            margin: 10px auto 0;
+            width: 100%;
+            padding-bottom: 100px;
+        }
+        
+        .chat-message {
+            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 10px;
+            line-height: 1.4;
+            font-size: 15px;
+            color: #a5afaf;
+            font-weight: 500;
+            width: fit-content;
+            background: #2b2626;
+            max-width: 75%;
+            word-wrap: break-word;
+            text-align: left;
+        }
+        
+        .chat-message.user {
+            margin-left: auto;
+            color: #2b2626;
+            background: #a5afaf;
+            text-align: right;
+        }
+        
+        .message-content :is(ol,ul) {
+            list-style-position: inside;
+        }
+        /* bouncing dots css start */
+        .bouncing-dots {
+            display: inline-block;
+            position: relative;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .bouncing-dots div {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4df70af5;;
+            top: 8px;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        
+        .bouncing-dots div:nth-child(1) {
+            left: 4px;
+            animation: bouncing-dots1 0.6s infinite;
+        }
+        
+        .bouncing-dots div:nth-child(2) {
+            left: 4px;
+            animation: bouncing-dots2 0.6s infinite;
+        }
+        
+        .bouncing-dots div:nth-child(3) {
+            left: 16px;
+            animation: bouncing-dots2 0.6s infinite;
+        }
+        
+        .bouncing-dots div:nth-child(4) {
+            left: 28px;
+            animation: bouncing-dots3 0.6s infinite;
+        }
+        
+        @keyframes bouncing-dots1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes bouncing-dots2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(12px, 0); }
+        }
+        
+        @keyframes bouncing-dots3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        /* bouncing dots css end */
+        
+        .gvi_up_arrow {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        .gvi_up_arrow img {
+            width: 60px;
+        }
+
+        .chat-input {
+            background-color: #e7f3f3;
+        }
+
+
+        @media (max-width: 767px) {
+            .gvi_main_container {
+                padding-inline: 10px;
+                background-size: 350px;
+            }
+            .gvi_header {
+                padding: 15px 0;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .gvi_header__logo h2 {
+                font-size: 18px;
+            }
+            .gvi_header__backBtn {
+                display: block;
+                position: absolute;
+                left: 10px;
+                cursor: pointer;
+            }
+            .chat-message {
+                font-size: 14px;
+                line-height: 1.3;
+            }
+            .gvi_up_arrow img {
+                width: 40px;
+            }
+        }
+
+        .main-body{
+            background-color: #000000;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class = "main-body">
+    <div class="gvi_main_container">
+        <div class="gvi_header">
+            <div class="gvi_header__backBtn" id="gvi_header__backBtn"><img src="https://cdn.kindlife.in/images/ui_icon/backBtn-black.svg"> </div>
+            <div class="gvi_header__logo" id="gvi_header__logo">
+                <figure><img id="gvi_header__logo_img" src="{% static 'admin/img/client-logo/recobee.png' %}"></figure>
+            </div>
+        </div>
+
+        <div class="gvi_chat_container">
+            <div class="chat-body" id="chatBody">
+                <!-- Chat messages will be appended here -->
+            </div>
+        </div>
+        
+
+        <div class="gvi_chat_search_container">
+            <div class="gvi_search">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Hey there! ask your queries..." bg = #a5afaf>
+                <button id="chatSend" class="chat-send"><img src="https://cdn.kindlife.in/images/ui_icon/gvi-rigthArrow-GrdBtn.png"></button>
+            </div>
+        </div>
+        <div class="gvi_up_arrow" id="gvi_up_arrow" onclick="topFunction()"><img src="https://cdn.kindlife.in/images/ui_icon/upArrow-CircleBtn.svg"></div>
+    </div>
+
+<script>
+    const mybutton = document.getElementById("gvi_up_arrow");
+    window.onscroll = function() {scrollFunction()};
+    function scrollFunction() {
+        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+    window.onload = function(){
+        session_id = generateUUID();
+        const userInput = localStorage.getItem('userInput');
+        if(userInput){
+            const chatInput = document.getElementById('chatInput');
+            chatInput.value = userInput;
+            document.getElementById('chatSend').click();
+            localStorage.removeItem('userInput');
+        }
+    }
+    session_id = generateUUID();
+    document.getElementById('chatSend').addEventListener('click', function() {
+        const chatInput = document.getElementById('chatInput');
+        const chatBody = document.getElementById('chatBody');
+        const messageText = chatInput.value.trim();
+
+        if (messageText === '') return;
+
+        // Display user's message
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.innerHTML = `<div class="message-content">${messageText}</div>`;
+        chatBody.appendChild(userMessageDiv);
+
+        chatInput.value = '';
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // Display bouncing dots
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'chat-message bot';
+        botMessageDiv.innerHTML = `<div class="message-content"><div class="bouncing-dots"><div></div><div></div><div></div><div></div></div></div>`;
+        chatBody.appendChild(botMessageDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        fetch('/api/v1/api-controller/invoke-service/recobee-api-chat/', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer rb-9544ea96-b1af-4446-9cef-cdde602733a324',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobile: '0000000000',
+                text: messageText,
+                session_id: session_id, 
+                client_identifier : '54d82b43-150b-456d-aad1-d9b3f39defc3',
+                //api_auth_token : 'Bearer eyJraWQiOiI3MFpPK1JzSEgrRVdvTTVHZ1ByNlBzZnlRRGgwVWxyWm1IM3MxTWlMdVA0PSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiMjB1dHBwbHQyVUhMRFlkTXZwalN2USIsImFyaWQiOiIxMDI3OCIsInN1YiI6IjdjZmI0NGM4LThjNmYtNDVmOS04MDEzLTZjNDI2MjViMmI4NSIsImNvZ25pdG86Z3JvdXBzIjpbImFwLXNvdXRoLTFfVmhQOEtvMjN4X0dvb2dsZSJdLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImN1c3RvbTpleHBpcmVzX2luIjoiMzU5OSIsImN1c3RvbTpDdXN0b21fQWNjZXNzX1Rva2VuIjoieWEyOS5hMEFlRENsWkNBRDFmdWhGcF8tb2d0OXlhMS1iTTJPR2Nwb1dxald2LWlCdk1PX2FUT29Odmx3d0oyYzNBdTgtWnl2cnFaaGdCS0hzbUFEU3k1YUVZLU94YzBSS2lHU3MxTnFwdnpKOXJOWE1yUXpqU1k2UnVoVFowaU9MZzFIaUExYk9NTTBKeFFFTUxhNkpxOE5rTHpxR3lFVFFHcUdGRmNETUcxbTJOcGFDZ1lLQWQ4U0FSRVNGUUhHWDJNaXNiZFkySWwyaEFqZGxfZ0taSi04VUEwMTc1IiwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLXNvdXRoLTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGgtMV9WaFA4S28yM3giLCJjb2duaXRvOnVzZXJuYW1lIjoiR29vZ2xlXzEwNzg3MjAwNjQ1MzYzNTc0NjczOCIsImdpdmVuX25hbWUiOiJIYXJzaCIsInBpY3R1cmUiOiJodHRwczpcL1wvbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbVwvYVwvQUNnOG9jSmFrMFY5NW9idENZajk0VUJLNVg4NjlQcHJycVB4ejdSNzdJY3ZBb1RWblBIX1JuTEo9czk2LWMiLCJhdWQiOiI2dHZlZnNuaTdwbDRoczFwbWJjbTRvbDJ1ciIsImN1c3RvbTpDdXN0b21fUmVmcmVzaF9Ub2tlbiI6IjFcL1wvMGdocUxjTFhQVWpCQkNnWUlBUkFBR0JBU053Ri1MOUlyYUh3bzRFQ1JVOTlhemVEcHhfTnNzRlQ0TW9TZ0lfcU8zdVBjcERkODg5WnJyTmlfdURsSWk4X1hLWGJlNk00Y1pTcyIsImN1c3RvbTp0b2tlbl90eXBlIjoiQmVhcmVyIiwiaWRlbnRpdGllcyI6W3sidXNlcklkIjoiMTA3ODcyMDA2NDUzNjM1NzQ2NzM4IiwicHJvdmlkZXJOYW1lIjoiR29vZ2xlIiwicHJvdmlkZXJUeXBlIjoiR29vZ2xlIiwiaXNzdWVyIjpudWxsLCJwcmltYXJ5IjoidHJ1ZSIsImRhdGVDcmVhdGVkIjoiMTczMzM4NTk3MTk1MSJ9XSwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE3MzMzODU5NzIsIm5hbWUiOiJIYXJzaCBWaWpheSIsImV4cCI6MTczNTAyNTE1MCwiaWF0IjoxNzM1MDIxNTUxLCJmYW1pbHlfbmFtZSI6IlZpamF5IiwiZW1haWwiOiJoYXJzaC52aWpheUBhdXJpZ2FpdC5jb20ifQ.X_zMNzGwsFqSdnIoUV9Z69v7IHr4ovqXhQRXaFKkvhi_fUZRpcZZthbvPB44UECLL4uhE8hC6y0-2nFGniPHBe2aSA3KJEAD9L9TlOiDduIpls3ctmEzqHNUSUVs34Fju6UcFsSaXXfhkTcjNfv3deJCYfh3a6kz4-7gX23ixuLIoFb4YhwXuXdIZp-f7goHHi9viQ8Qbu1TGWsloxuTOUD4EHlkUaQBHYbOkJFgugQnJKghhjpEhR0nJlkrRa613FIxLsEbQnGvu_oIiHWppmlI-LZadyFWnFSESwS5N7Zd8QDj416EhMxFSwBu185PeTvCW8TkVjF2woBR5-Em3g'
+            })
+        })
+        .then(async (response) => {
+            if (!response.body) {
+                throw new Error('Readable stream not supported.');
+            }
+            
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+        
+            let result = "";
+            let done = false;
+        
+            while (!done) {
+                // Read the next chunk from the response
+                const { value, done: streamDone } = await reader.read();
+                done = streamDone;
+                
+                if (value) {
+                    // Decode the chunk to text and accumulate the result
+                    result += decoder.decode(value, { stream: true });
+                    // Here you can handle each chunk of data and append it to the chat body
+                    const formatted_giva_message = marked.parse(result);
+                    botMessageDiv.innerHTML = `<div class="message-content">${formatted_giva_message}</div>`;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+            }
+        
+            // Handle any final data when the stream is done
+            if (done) {
+                const finalMessage = marked.parse(result);
+                botMessageDiv.innerHTML = `<div class="message-content">${finalMessage}</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        })
+        .catch(error => {
+            console.error("Error in streaming response:", error);
+        });
+
+        // Call the API to get the chatbot response
+        /*
+        fetch('/api/v1/api-controller/invoke-service/gvi-chat/', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer kl-9544ea96-b1af-4446-9cef-cdde602733a3',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobile: '0000000000',
+                text: messageText,
+                session_id: session_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove bouncing dots
+            const gvi_message = data.data;
+            const formatted_giva_message = marked.parse(gvi_message);
+            botMessageDiv.innerHTML = `<div class="message-content">${formatted_giva_message}</div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        })
+        .catch(error => {
+            // Remove bouncing dots and show error message
+            console.log("Error: ", error)
+            botMessageDiv.innerHTML = `<div class="message-content">An error occurred</div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+        */
+    });
+    document.getElementById('chatInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            document.getElementById('chatSend').click();
+        }
+    });
+    document.getElementById('gvi_header__backBtn').addEventListener('click', function() {
+        const basePath = window.location.origin + '/gvi/home/';
+        window.location.href = basePath;
+    });
+    document.getElementById('gvi_header__logo_img').addEventListener('click', function() {
+        const basePath = window.location.origin + '/gvi/home/';
+        window.location.href = basePath;
+    });
+</script>
+
+</body>
+</html>

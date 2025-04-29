@@ -1,0 +1,20 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% block content %}
+    {{ block.super }}
+
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+
+{% endblock %}
+{% block extrajs %}
+    {{ block.super }}
+<script>
+    var endpoint = '{% url "get_help_window_content" %}'
+    params = {"template_id":1}
+</script>
+    {% include "admin/global_help_window.html" %}
+
+{% endblock %}

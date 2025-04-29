@@ -1,0 +1,81 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block submit_buttons_bottom %}
+     {{ block.super }}
+    <button type="button" class="btn btn-block btn-primary btn-sm send-notification-btn mt-3" data-notification-id="{{ original.id }}">
+        Send Notification
+    </button>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $(".field-recipients_status_display").eq(1).addClass("col-sm-9");
+            $(".field-recipients_list_display").eq(1).addClass("col-sm-9");
+            $(".send-notification-btn").click(function() {
+                Swal.fire({
+                    title: "Are you sure you want to send notification",
+                    text: "",
+                    icon: 'warning',
+                    showDenyButton: true,
+                    confirmButtonText: "OK",
+                    denyButtonText: `Cancel`
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        send_group_notification($(this));
+                    }
+
+                });;
+
+            });
+
+        });
+
+        function send_group_notification(element){
+            let notificationId = element.data("notification-id");
+            let apiUrl = "{% url 'send_group_notification'%}"
+            let data = {'notification_id':notificationId}
+            $.ajax({
+                url: apiUrl,
+                type: "POST",
+                data:data,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"  // CSRF token for security
+                },
+                success: function(response) {
+                    console.log(response)
+                    let icon = 'error'
+                    if (response.data.status){
+                        icon = 'success'
+                    }
+                    Swal.fire({
+                        title: response.status,
+                        text: response.message,
+                        icon: icon,
+                        confirmButtonText: "OK",
+
+                    }).then((result) => {
+                      /* Read more about isConfirmed, isDenied below */
+                          if (result.isConfirmed) {
+                                location.reload();
+                          } else if (result.isDenied) {
+                                location.reload();
+                          }
+                        });;
+
+                },
+                error: function() {
+                    Swal.fire({
+                      title: "Error in sending notification",
+                      text: "Please try again.",
+                      icon: "error",
+                      confirmButtonText: "OK",
+                    })
+                }
+            });
+        }
+
+
+    </script>
+{% endblock %}

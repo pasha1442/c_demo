@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_list jazzmin %}
+
+
+{% block title %} System Health | CygnusAlpha {% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+
+<style>
+    .content-wrapper .border-bottom {
+        border-bottom: 0px !important;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="col-md-12">
+    <div class="card" style="">
+        <div class="card-body">
+            <div class="card-header">
+                <h2 class="card-title">System Health</h2>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th style="width:10%">ID</th>
+                    <th style="width:20%">System Name</th>
+                    <th style="width:10%">Health Status</th>
+                    <th style="width:60%">Comments</th>
+                </tr>
+                </thead>
+                <tbody class="custom-health">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    var health_list_url = '{% url "system_health_status" %}'
+    async function fetch_health_status(){
+        const loader_container = document.querySelector('.custom-health');
+        show_loader(loader_container);
+        const response = await fetch(health_list_url);
+        const result = await response.json();
+        if (result.status == 'SUCCESS'){
+            populateHealthTable(result.data);
+
+        }
+        hide_loader(loader_container)
+    }
+
+    function getStatusIndicator(status) {
+        if (status === undefined) {
+            return '<span class="badge bg-warning">Not Exist</span>';
+        }
+
+        return status
+            ? '<span class="badge bg-success">Healthy</span>' // Green badge
+            : '<span class="badge bg-danger">Unhealthy</span>'; // Red badge
+    }
+
+    function append_health_data(tbody_class, data_values){
+        const $tableBody = $('.'+tbody_class);
+        let idCounter = 1;
+        for (const [key, value] of Object.entries(data_values)) {
+                var tr_class = "table-danger"
+                if (value.status == true){
+                    tr_class = "table-success"
+                }
+                const checkEntry = `
+                    <tr class="">
+                        <td>${idCounter++}</td>
+                        <td>${key}</td>
+                        <td>${getStatusIndicator(value.status)}</td>
+                        <td>${value.message}</td>
+                    </tr>
+                `;
+                $tableBody.append(checkEntry);
+            }
+        }
+
+    function populateHealthTable(data) {
+<!--        const checks = data[0].checks;-->
+        const custom_health_status = data[0].custom_health
+<!--        append_health_data("health-status",checks)-->
+        append_health_data("custom-health",custom_health_status)
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var titleElement = document.querySelector("h1.h4.m-0.pr-3.mr-3.border-right");
+        if (titleElement) {
+            titleElement.textContent = "System Health Status";
+        }
+        const response = fetch_health_status()
+
+    })
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ca-core-backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: always
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - /home/cygnusalpha/static:/app/staticfiles  # Mount local directory for static files
+    environment:
+        - ALLOWED_ORIGINS=https://portal.cygnusalpha.one,http://portal.cygnusalpha.one
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - /opt/cygnusalpha/redis-data:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

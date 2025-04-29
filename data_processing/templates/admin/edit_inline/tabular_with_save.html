@@ -1,0 +1,191 @@
+{% extends "admin/edit_inline/tabular.html" %}
+{% load i18n admin_urls %}
+
+{% block inline_field_sets %}
+  {% with formset=inline_admin_formset.formset %}
+    {% if formset.page_obj %}
+      <div class="inline-pagination">
+        <div class="inline-filters">
+          <select name="{{ formset.prefix }}-status_filter" id="{{ formset.prefix }}-status_filter" onchange="filterInlineStatus(this)">
+            <option value="">All Statuses</option>
+            {% for status_code, status_label in formset.form.fields.status.choices %}
+              <option value="{{ status_code }}" {% if formset.request.GET.status == status_code %}selected{% endif %}>{{ status_label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="paginator">
+          {% if formset.page_obj.has_previous %}
+            <a href="?{{ formset.request.GET.urlencode }}&page={{ formset.page_obj.previous_page_number }}" class="page-link">Previous</a>
+          {% endif %}
+          <span class="current-page">
+            Page {{ formset.page_obj.number }} of {{ formset.paginator.num_pages }}
+            ({{ formset.paginator.count }} total)
+          </span>
+          {% if formset.page_obj.has_next %}
+            <a href="?{{ formset.request.GET.urlencode }}&page={{ formset.page_obj.next_page_number }}" class="page-link">Next</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {{ block.super }}
+
+  <style>
+    .inline-pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      margin: 10px 0;
+      border: 1px solid #dee2e6;
+    }
+    .inline-filters select {
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      min-width: 150px;
+      font-size: 13px;
+      background-color: white;
+    }
+    .paginator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .page-link {
+      padding: 5px 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #007bff;
+      font-size: 13px;
+    }
+    .page-link:hover {
+      background: #e9ecef;
+      color: #0056b3;
+      text-decoration: none;
+    }
+    .current-page {
+      padding: 5px 10px;
+      font-size: 13px;
+      color: #495057;
+    }
+    /* Status colors */
+    .status-pending {
+      color: #6c757d;
+    }
+    .status-processing {
+      color: #007bff;
+    }
+    .status-done {
+      color: #28a745;
+    }
+    .status-error {
+      color: #dc3545;
+    }
+  </style>
+
+  <script>
+    // Handle inline save button clicks
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('{{ inline_admin_formset.formset.prefix }}-group');
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          const submitButton = e.submitter;
+          if (submitButton && submitButton.name === '_save_inline') {
+            e.preventDefault();
+            
+            // Get partition ID and enrichment ID
+            const partitionId = submitButton.value;
+            const enrichmentId = window.location.pathname.split('/')[4]; // Get ID from URL
+            
+            // Get form data for this specific partition
+            const formData = new FormData();
+            const prefix = `dataenrichmentpartition_set-${partitionId}`;
+            form.querySelectorAll(`[name^="${prefix}"]`).forEach(input => {
+              formData.append(input.name, input.value);
+            });
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            
+            // Preserve current filter and page
+            const url = new URL(window.location.href);
+            if (url.searchParams.get('status')) {
+              formData.append('status', url.searchParams.get('status'));
+            }
+            if (url.searchParams.get('page')) {
+              formData.append('page', url.searchParams.get('page'));
+            }
+            
+            // Send to partition-specific endpoint
+            fetch(`../../${enrichmentId}/save_partition/${partitionId}/`, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              }
+            }).then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Show success message
+                const messages = document.querySelector('.messagelist') || document.createElement('ul');
+                messages.classList.add('messagelist');
+                messages.innerHTML = `<li class="success">${data.message}</li>`;
+                if (!document.querySelector('.messagelist')) {
+                  document.querySelector('#content').insertBefore(messages, document.querySelector('#content').firstChild);
+                }
+                
+                // Reload just the inline table
+                const inlineGroup = document.querySelector('.inline-group');
+                fetch(window.location.href)
+                  .then(response => response.text())
+                  .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newInline = doc.querySelector('.inline-group');
+                    inlineGroup.innerHTML = newInline.innerHTML;
+                  });
+              } else {
+                alert(data.error || 'Error saving partition. Please try again.');
+              }
+            })
+            .catch(error => {
+              alert('Error saving partition: ' + error);
+            });
+          }
+        });
+      }
+
+      // Add status colors to cells
+      document.querySelectorAll('select[id$="-status"]').forEach(select => {
+        const cell = select.closest('td');
+        if (cell) {
+          cell.classList.add(`status-${select.value}`);
+        }
+        select.addEventListener('change', function() {
+          cell.className = '';
+          cell.classList.add(`status-${this.value}`);
+        });
+      });
+    });
+
+    function filterInlineStatus(select) {
+      const status = select.value;
+      const currentUrl = new URL(window.location.href);
+      
+      if (status) {
+        currentUrl.searchParams.set('status', status);
+      } else {
+        currentUrl.searchParams.delete('status');
+      }
+      
+      // Reset page when filter changes
+      currentUrl.searchParams.delete('page');
+      
+      window.location.href = currentUrl.toString();
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+{% block extrahead %}
+    {{ block.super }}
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div id="ajax-content"></div>
+<script>
+    var queue_count_url = '{% url "get_queue_count" %}'
+    var queue_list_url = '{% url "get_queue_list" %}'
+</script>
+<script src="{% static 'data_processing_queue/kafka_admin_queue_count.js' %}"></script>
+{% endblock %}

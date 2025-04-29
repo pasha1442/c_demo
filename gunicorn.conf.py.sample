@@ -1,0 +1,26 @@
+import multiprocessing
+import os
+
+# Application-specific settings
+# Change this to your Python WSGI application's callable
+wsgi_app = "backend.wsgi:application"  # Example: 'myapp.wsgi:application'
+
+# Server socket
+bind = "0.0.0.0:8000"  # Bind to port 8000 (adjust as needed)
+
+# Worker settings
+workers = multiprocessing.cpu_count() * 2 + 1  # Number of workers based on CPU cores
+worker_class = "sync"  # Default: 'sync'. For async, use 'gevent' or 'uvicorn'
+
+# Logging settings
+loglevel = "info"  # Logging level
+errorlog = "-"  # Output errors to stderr (Docker logs)
+accesslog = "-"  # Output access logs to stdout (Docker logs)
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'  # Custom log format
+
+# Timeout settings
+timeout = 30  # Workers timeout after 30 seconds of no response
+graceful_timeout = 30  # Graceful shutdown timeout
+
+# Preload app for faster worker boot times and reduced memory usage
+preload_app = True

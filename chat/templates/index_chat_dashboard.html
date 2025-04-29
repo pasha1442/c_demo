@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-bubble {
+            max-width: 60%;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #0084ff;
+            color: white;
+        }
+        .ai-message {
+            align-self: flex-start;
+            background-color: #e5e5ea;
+            color: black;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #0084ff;
+            color: white;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        async function sendMessage() {
+            const message = document.getElementById('message').value;
+            if (message.trim() === '') return;
+
+            const userMessageBubble = document.createElement('div');
+            userMessageBubble.className = 'chat-bubble user-message';
+            userMessageBubble.innerText = message;
+            document.querySelector('.chat-container').appendChild(userMessageBubble);
+            document.getElementById('message').value = '';
+
+            const response = await fetch('/api/chatbot/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization' : 'Bearer kl-e05c1924-1a2d-43ef-b9cb-fe1158f03301'
+                },
+                body: JSON.stringify({ message: message }),
+            });
+
+            const data = await response.json();
+            const aiMessageBubble = document.createElement('div');
+            aiMessageBubble.className = 'chat-bubble ai-message';
+            aiMessageBubble.innerText = data.reply;
+            document.querySelector('.chat-container').appendChild(aiMessageBubble);
+
+            // Scroll to the bottom of the chat container
+            document.querySelector('.chat-container').scrollTop = document.querySelector('.chat-container').scrollHeight;
+        }
+    </script>
+</head>
+<body>
+    <div style="height:100vh">
+        <div style="margin: 10px 20px;"><a href="/admin"> Dashboard </a></div>
+        <hr>
+        <br>
+        <div class="chat-container" style="height:80vh"></div>
+        <div class="input-container">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</body>
+</html>

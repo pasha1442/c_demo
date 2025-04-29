@@ -1,0 +1,14 @@
+{% extends "admin/change_list.html" %}
+{%load static%}
+
+
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'data_processing/css/admin/custom.css' %}">
+{% endblock %}
+
+{% block extrajs %}
+{{block.super}}
+
+<script type="text/javascript" src="{% static 'data_processing/js/admin/data_embedding.js' %}"></script>
+{% endblock %}

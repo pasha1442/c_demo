@@ -1,0 +1,125 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_list jazzmin %}
+
+
+{% block title %} Chat | Cygnus Alpha {% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+   <link rel="stylesheet" href="{% static 'admin/css/chat/chat-window.css' %}">
+{% endblock %}
+
+
+{% block content %}
+    <div style="width:100%; margin: -50px -20px; -20px -10px !important" >
+                <div class="card border-secondary mb-3">
+                  <div class="card-header">
+                  <div style='display:flex; align-items:center'>
+                      <i class="fas fa-comment mr-2"></i> Chat
+                      <span style="margin-left:50px;display:flex; align-items:center"> 
+                          API Controller
+                          <div class='display:flex; align-items:center'>
+                          <select id="chat_window_agent_selection_id" class='ml-2' style="height: 25px;">
+                              <option value="">All</option>
+                              <!-- Add more options here -->
+                          </select>
+                          <button id="reload_button" class="btn btn-outline-secondary" 
+                                  style="margin-left: 10px; padding: 1px 10px; font-size: 14px; height: 25px;">
+                              <i id="reload_icon" class="fas fa-sync-alt" style="font-size: 16px;"></i>
+              
+                            </button>
+                          </div>
+                          </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-body text-secondary pad-0" style="height:65vh; overflow-y:scroll;" id="chat_window_parent_container_id">
+                <section class="gradient-custom">
+                  <div class="container-fluid py-5" style="min-height:65vh;">
+                    <div class="row">
+                      <div class="col-md-12 col-lg-12 col-xl-12" style="text-align:right;">
+
+                        <ul class="list-unstyled text-white" id="chat_window_container_id">
+
+                        </ul>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                </section>
+
+
+              </div>
+            <div id="chat_window_loader_id"
+                 style="position:absolute; bottom:100px; left:20px; overflow:hidden; border-radius:10px;">
+                <img src="{% static 'admin/img/loader1.gif' %}"
+                     style="height:40px; transform: scale(2);">
+            </div>
+            <div class="card-footer text-secondary">
+                 <div class="row">
+                     <div class="col-md-10"><textarea class="form-control" aria-label="With textarea" id="chat_window_textarea_id"></textarea></div>
+                     <div class="col-md-2">
+                         <button type="button" class="btn btn-success" id="chat_window_send_message_btn_id">
+                         <i class="fas fa-paper-plane"></i>
+                         Send</button>
+                     </div>
+                 </div>
+            </div>
+
+        </div>
+
+
+
+
+
+    </div>
+
+<script type="text/template" id="left_message_template_id">
+  <li class="d-flex s mb-4">
+                            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-6.webp" alt="avatar"
+                              class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
+                            <div class="card mask-custom">
+                              <div class="card-header d-flex justify-contents-between p-3"
+                                style="border-bottom: 1px solid rgba(255,255,255,.3);">
+                                <p class="fw-bold mb-0"><%- name %></p>
+                                <p class="text-light small mb-0" style="padding-left:20px;"><i class="far fa-clock"></i> 12 mins ago</p>
+                              </div>
+                              <div class="card-body">
+                                <p class="mb-0" >
+                                    <pre style="text-align:left;">
+                                        <%- message %>
+                                    </pre>
+
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+</script>
+
+<script type="text/template" id="right_message_template_id">
+    <li class="d-flex justify-contents-between-right mb-4">
+                            <div class="card mask-custom w-100">
+                              <div class="card-header d-flex justify-content-between p-3"
+                                style="border-bottom: 1px solid rgba(255,255,255,.3);">
+                                <p class="fw-bold mb-0"><%- name %></p>
+                                <p class="text-light small mb-0"><i class="far fa-clock"></i> 13 mins ago</p>
+                              </div>
+                              <div class="card-body">
+                                <p class="mb-0">
+                                  <%- message %>
+                                </p>
+                              </div>
+                            </div>
+                            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-5.webp" alt="avatar"
+                              class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong" width="60">
+                          </li>
+</script>
+{% endblock %}
+{% block extrajs %}
+    {{ block.super }}
+    <script src="{% static 'admin/js/chat/chat-window/chat_window.js' %}"></script>
+{% endblock %}
+

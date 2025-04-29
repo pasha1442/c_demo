@@ -1,0 +1,32 @@
+{% load i18n admin_urls %}
+<div class="js-inline-admin-formset inline-group" id="{{ inline_admin_formset.formset.prefix }}-group"
+     data-inline-type="tabular"
+     data-inline-formset="{{ inline_admin_formset.inline_formset_data }}">
+  <div class="tabular inline-related">
+    <fieldset class="module">
+      <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+      {{ inline_admin_formset.formset.management_form }}
+      {{ inline_admin_formset.formset.non_form_errors }}
+      <table>
+        <thead>
+          <tr>
+            {% for field in inline_admin_formset.fields %}
+              <th class="{{ field.name }}">
+                {{ field.label|capfirst }}
+                {% if field.required %}<span class="required">*</span>{% endif %}
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody id="partition-list">
+          <!-- Partitions will be loaded here via AJAX -->
+          <tr class="loading-placeholder">
+            <td colspan="{{ inline_admin_formset.fields|length }}" style="text-align: center; padding: 20px;">
+              Loading partitions...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+  </div>
+</div>

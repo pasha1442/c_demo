@@ -1,0 +1,128 @@
+.custom-button
+{
+    line-height: 30px;
+    font-size: 15px;
+}
+.pad-0
+{
+    padding:0px;
+}
+
+pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    padding:0px;
+}
+
+.select2-selection__choice{
+    background: #0074f0 !important;
+    padding-left : 5px !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+    cursor: default;
+    padding-left: 24px!important;
+    padding-right: 5px!important;
+}
+
+
+/* LOADER CSS */
+.loader {
+    display: none; /* Hide by default */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    font-size: 20px;
+    color: #555;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.loader::after {
+    content: "⏳";
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+.loader-height {
+    height:400px;
+}
+
+.admindatefilter
+{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.export_link
+{
+    margin: 0px 10px;
+}
+.controls {
+    display: block;
+    gap: 10px;
+    padding: 4px 0;
+    margin-left: 5px;
+}
+
+.controls .button {
+    padding: 0px 16px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #444;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.controls .button[type="submit"] {
+    background-color: #79aec8;
+    border-color: #79aec8;
+    color: #fff;
+}
+#change-list-filters
+{
+    display: flex !important;
+}
+.controls .button[type="reset"] {
+    background-color: #5d7085;
+    border-color: #ddd;
+    color: #FFF;
+}
+
+.controls .button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.controls .button[type="submit"]:hover {
+    background-color: #1e272c;
+    border-color: #417690;
+}
+
+.controls .button[type="reset"]:hover {
+    background-color: #b8cbdf;
+    border-color: #b8cbdf;
+}
+
+.controls .button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}

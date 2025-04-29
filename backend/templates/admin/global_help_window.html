@@ -1,0 +1,16 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin/css/global_help_window_css.css' %}">
+<!-- Modal structure -->
+    <div id="sidebarModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <span id="closeHelpWindow" class="close-button">&times;</span>
+            <h2 id="sidebar-heading"></h2>
+            <div id="sidebarContent">
+
+                <p>Loading...</p>
+            </div>
+
+        </div>
+<!--        <button class="form-control btn btn-danger btn-block close-help-model" type="button">Close</button>-->
+    </div>
+<script src="{% static 'admin/js/global_help_window_js.js' %}"></script>

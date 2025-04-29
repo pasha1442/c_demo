@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ca-core-backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"  
+    restart: always
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+    volumes:
+      - /home/cygnusalpha/static:/app/staticfiles  # Mount local directory for static files
+        #- /var/log:/var/log  # Mount host log directory to container
+      - /var/log/cygnusAlpha/docker/core-backend/:/var/log/cygnusAlpha/core-backend/
+
+    environment:
+      - ALLOWED_ORIGINS=https://portal.cygnusalpha.one,http://portal.cygnusalpha.one,http://test.cygnusalpha.one,https://test.cygnusalpha.one
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-network:
+    driver: bridge

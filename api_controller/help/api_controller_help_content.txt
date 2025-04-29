@@ -1,0 +1,156 @@
+<div id="" class="fields-description">
+    <!-- Field: Name -->
+    <section class="field">
+        <h3 class="field-title">Name</h3>
+        <hr class="separator">
+        <p class="field-description">This field indicates the name of the API.</p>
+    </section>
+
+    <!-- Field: Request Medium -->
+    <section class="field">
+        <h3 class="field-title">Request Medium</h3>
+        <hr class="separator">
+        <p class="field-description">This field specifies the vendor or medium used for the API. Possible values include:</p>
+        <ul class="field-list">
+            <li>WhatsApp Meta Cloud API</li>
+            <li>WhatsApp Sinch API</li>
+            <li>Twilio API</li>
+            <li>API</li>
+            <li>Python SDK</li>
+            <li>JS SDK</li>
+        </ul>
+    </section>
+
+    <!-- Field: Application Type -->
+    <section class="field">
+        <h3 class="field-title">Application Type</h3>
+        <hr class="separator">
+        <p class="field-description">This field indicates the type of application. Possible types include:</p>
+        <ul class="field-list">
+            <li>Backend</li>
+            <li>Frontend</li>
+            <li>Batch Processing</li>
+        </ul>
+    </section>
+
+    <!-- Field: Base API URL -->
+    <section class="field">
+        <h3 class="field-title">Base API URL</h3>
+        <hr class="separator">
+        <p class="field-description">This field specifies the base API URL. The URL can be modified based on requirements, such as when switching to a different communication method or updating the app version.</p>
+        <p><strong>Examples:</strong></p>
+        <ul class="field-list">
+            <li>Initial API URL: <code>/api/v1/{rest path}/</code></li>
+            <li>Modified for sockets: <code>/socket/v1/{rest path}/</code></li>
+            <li>Updated for a new app version: <code>/api/v2/{rest path}/</code></li>
+        </ul>
+    </section>
+
+    <!-- Field: API Route -->
+    <section class="field">
+        <h3 class="field-title">API Route</h3>
+        <hr class="separator">
+        <p class="field-description">This field defines the unique API route for each API. It must be unique across all APIs to ensure proper routing and avoid conflicts.</p>
+    </section>
+
+    <!-- Field: Billing Session Type -->
+    <section class="field">
+        <h3 class="field-title">Billing Session Type</h3>
+        <hr class="separator">
+        <p class="field-description">Specifies the session type used in OpenMeter for managing billing sessions in the API context. Determines how the billing session ID changes. Possible types are:</p>
+        <ul class="field-list">
+            <li><strong>Per Call One Session:</strong> The billing session ID changes with every API call or request.</li>
+            <li><strong>Time Based Session:</strong> The billing session ID changes after a predefined duration, specified in the <code>Billing Session Time</code> field.</li>
+            <li><strong>Token Based Session:</strong> The billing session ID changes based on the current API token. If the token changes, the session ID also changes.</li>
+            <li><strong>Count and Time Based Session:</strong> The billing session ID changes based on either the <code>Billing Session Time</code> value or when the message count exceeds the <code>Billing Session Count</code> value.</li>
+        </ul>
+    </section>
+
+    <!-- Field: Billing Session Time -->
+    <section class="field">
+        <h3 class="field-title">Billing Session Time</h3>
+        <hr class="separator">
+        <p class="field-description">Defines the session duration in minutes for time-based billing sessions. The billing session ID will change when the duration exceeds this value, provided the session type involves time constraints.</p>
+    </section>
+
+    <!-- Field: Billing Session Count -->
+    <section class="field">
+        <h3 class="field-title">Billing Session Count</h3>
+        <hr class="separator">
+        <p class="field-description">Specifies the maximum count of messages allowed within a single billing session. If the total number of messages exceeds this value, the billing session ID will change. This is applicable when the session type involves count constraints.</p>
+    </section>
+
+    <!-- Field: Conversation Session Type -->
+    <section class="field">
+        <h3 class="field-title">Conversation Session Type</h3>
+        <hr class="separator">
+        <p class="field-description">Specifies the session type used for managing conversation sessions in the API context. The conversation session ID changes based on the defined session type. Possible types are:</p>
+        <ul class="field-list">
+            <li><strong>Time Based Conversation Session:</strong> The conversation session ID changes after a predefined duration, specified in the <code>Conversation Session Ttime</code> field.</li>
+            <li><strong>Count Based Conversation Session:</strong> The conversation session ID changes when the number of messages exceeds the value specified in the <code>Conversation Session Count</code> field.</li>
+            <li><strong>Time and Count Based Conversation Session:</strong> The conversation session ID changes when either the time exceeds the <code>Conversation Session Ttime</code> or the message count exceeds the <code>Conversation Session Count</code>.</li>
+        </ul>
+    </section>
+
+    <!-- Field: Conversation Session Count -->
+    <section class="field">
+        <h3 class="field-title">Conversation Session Count</h3>
+        <hr class="separator">
+        <p class="field-description">This field specifies the maximum number of messages allowed in a single conversation session. Enter <strong>0</strong> for unlimited messages. If the number of messages exceeds this value, the conversation session ID will change.</p>
+    </section>
+
+    <!-- Field: Conversation Session Time -->
+    <section class="field">
+        <h3 class="field-title">Conversation Session Time</h3>
+        <hr class="separator">
+        <p class="field-description">Specifies the maximum time allowed between messages in a single conversation session, measured in minutes. If the time exceeds this value, the conversation session ID will change.</p>
+    </section>
+
+    <!-- Field: Conversation Session Refresh Keyword -->
+    <section class="field">
+        <h3 class="field-title">Conversation Session Refresh Keyword</h3>
+        <hr class="separator">
+        <p class="field-description">This field allows you to define specific keywords to refresh the conversation session ID. You can enter multiple keywords, separated by commas (e.g., "Hello, hello, hi").</p>
+    </section>
+
+    <!-- Field: Required Parameters -->
+    <section class="field">
+        <h3 class="field-title">Required Parameters</h3>
+        <hr class="separator">
+        <p class="field-description">This field defines the required parameters for the API. For example, if the email ID is required but not received, the API will automatically return an error indicating that the required parameter "email" is missing.</p>
+    </section>
+
+
+    <!-- Field: Graph JSON -->
+    <section class="field">
+        <h3 class="field-title">Graph JSON</h3>
+        <hr class="separator">
+        <p class="field-description">This field holds a JSON representation of the graph structure for the API. The graph includes nodes and edges that describe the relationships and flow of data between different elements. You can check the workflow from this link: <a href="/chat/graph-workflow/" target="_blank">Graph Workflow</a>. An example of a Graph JSON could look like:</p>
+        <pre class="field-example">
+            {"nodes": [{"name": "Node 1", "tool": "", "type": "START", "nexts": ["2"], "pos_x": 194, "pos_y": 204, "width": 200, "height": 95, "uniq_id": "1", "true_next": null, "false_next": null, "description": ""}, {"name": "aur-assistant", "tool": "knowledge_retriver", "type": "STEP", "nexts": [], "pos_x": 589, "pos_y": 90, "width": 200, "height": 320, "uniq_id": "2", "true_next": null, "false_next": null, "description": ""}], "node_counter": 3}
+        </pre>
+    </section>
+</div>
+
+    <!-- Field: Workflow Type -->
+    <section class="field">
+        <h3 class="field-title">Workflow Stream</h3>
+        <hr class="separator">
+        <p class="field-description">Determines how the data is delivered during API processing:</p>
+        <ul class="field-list">
+            <li><strong>Checked:</strong> Data will be streamed to you as it is being processed, meaning you receive updates in real-time. Unlike traditional APIs where data is sent all at once after processing, here, data is continuously delivered during the process.</li>
+            <li><strong>Unchecked:</strong> Data will be delivered all at once after the processing is complete.</li>
+        </ul>
+    </section>
+
+    <!-- Field: Workflow Stream -->
+    <section class="field">
+        <h3 class="field-title">Workflow Stream</h3>
+        <hr class="separator">
+        <p class="field-description">Determines how the data is delivered during API processing:</p>
+        <ul class="field-list">
+            <li><strong>Checked:</strong> Data will be streamed to you as it is being processed, meaning you receive updates in real-time. Unlike traditional APIs where data is sent all at once after processing, here, data is continuously delivered during the process.</li>
+            <li><strong>Unchecked:</strong> Data will be delivered all at once after the processing is complete.</li>
+        </ul>
+    </section>
+</div>

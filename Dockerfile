@@ -1,0 +1,60 @@
+
+#FROM python:3.10-slim-buster
+FROM python:3.11-slim-bullseye
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    python3-dev \
+    libgeos-dev \
+    tk-dev \
+    gcc \
+    g++ \
+    make \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+
+RUN pip install --upgrade pip setuptools
+
+
+RUN addgroup --system appuser && adduser --system --ingroup appuser appuser
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir gunicorn && \ 
+    pip install --no-cache-dir uvicorn
+
+
+COPY . .
+
+
+RUN chown -R appuser:appuser /app
+
+RUN mkdir -p /var/log/cygnusAlpha/core-backend && touch /var/log/cygnusAlpha/core-backend/debug.log && chown -R appuser:appuser /var/log/cygnusAlpha
+
+
+
+USER appuser
+
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+
+
+
+EXPOSE 8000
+
+# CMD ["uvicorn", "backend.asgi:application", "--uds", "/run/core-backend.sock", "--log-level", "info", "--workers", "4", "--timeout-keep-alive", "120"]
+CMD ["uvicorn", "backend.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info", "--workers", "4", "--timeout-keep-alive", "120"]
+
+# CMD ["gunicorn", "-c", "gunicorn.conf.py", "backend.asgi:application"]
+# CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-c", "gunicorn.conf.py", "backend.asgi:application"]
+

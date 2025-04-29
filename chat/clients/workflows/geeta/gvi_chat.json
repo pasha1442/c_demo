@@ -1,0 +1,100 @@
+{
+    "nodes": [
+      {
+        "uniq_id": "1",
+        "pos_x": 238,
+        "pos_y": 131,
+        "width": 248,
+        "height": 248,
+        "nexts": [
+          "2"
+        ],
+        "type": "START",
+        "name": "",
+        "description": "",
+        "tool": "",
+        "true_next": null,
+        "false_next": null
+      },
+      {
+        "uniq_id": "2",
+        "pos_x": 636,
+        "pos_y": 169,
+        "width": 248,
+        "height": 248,
+        "nexts": [
+          "3"
+        ],
+        "type": "STEP",
+        "name": "supervisor",
+        "description": "supervisor",
+        "tool": "",
+        "true_next": null,
+        "false_next": null
+      },
+      {
+        "uniq_id": "3",
+        "pos_x": 991.991300959806,
+        "pos_y": 164.33709739203206,
+        "width": 236,
+        "height": 236,
+        "nexts": [
+          "4",
+          "5"
+        ],
+        "type": "CONDITION",
+        "name": "Node 3",
+        "description": "",
+        "tool": "",
+        "true_next": null,
+        "false_next": null
+      },
+      {
+        "uniq_id": "4",
+        "pos_x": 1480.7423024846896,
+        "pos_y": 38.57062628834859,
+        "width": 236,
+        "height": 236,
+        "nexts": [
+          "6"
+        ],
+        "type": "STEP",
+        "name": "Mentor",
+        "description": "mentor",
+        "tool": "knowledge_retriver",
+        "true_next": null,
+        "false_next": null
+      },
+      {
+        "uniq_id": "5",
+        "pos_x": 1633.6952097696185,
+        "pos_y": 631.699660204106,
+        "width": 236,
+        "height": 236,
+        "nexts": [],
+        "type": "STEP",
+        "name": "catalogue_recommender",
+        "description": "catalogue_recommender",
+        "tool": "recommend_books",
+        "true_next": null,
+        "false_next": null
+      },
+      {
+        "uniq_id": "6",
+        "pos_x": 1602.0164349279994,
+        "pos_y": 365.7860919201033,
+        "width": 200,
+        "height": 200,
+        "nexts": [
+          "5"
+        ],
+        "type": "CONDITION",
+        "name": "Node 6",
+        "description": "",
+        "tool": "",
+        "true_next": null,
+        "false_next": null
+      }
+    ],
+    "node_counter": 7
+  }
