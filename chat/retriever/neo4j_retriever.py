@@ -536,7 +536,6 @@ class AdvancedNeo4jRetriever(BaseRetriever):
         workflow_logger.add(f"Neo4j Executor [{self.company}] ({self.session_id}) -> Query: {cypher_query}")
         
         try:
-            print("+"*100)
             result = self.neo4j_connection.query_database(cypher_query)
             
             execution_time = round(time.time() - t1, 2)
@@ -555,6 +554,7 @@ class AdvancedNeo4jRetriever(BaseRetriever):
                         if row[j] is not None:
                             formatted_result += f"  {field}: {row[j]}\n"
                     formatted_result += "\n"
+                    
                 
                 return formatted_result
             elif result and len(result) == 1:

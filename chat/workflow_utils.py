@@ -179,25 +179,26 @@ def remove_final_answer(content: str) -> str:
 
 @observe()
 def push_llminfo_to_openmeter(node_data, openmeter_obj):
-    if node_data.get('messages', {}):
-        om_arg = {}
-        messages = node_data.get('messages', [])
-        llm_info = node_data.get('llm_info', [])
-        for msg in messages:
-            if isinstance(msg, AIMessage):
-                if msg.usage_metadata:
-                    usage_data = msg.usage_metadata
-                    om_arg["total_token"] = usage_data.get("total_tokens", "")
-                    om_arg["input_token"] = usage_data.get("input_tokens", "")
-                    om_arg["output_token"] = usage_data.get("output_tokens", "")
+    return None
+    # if node_data.get('messages', {}):
+    #     om_arg = {}
+    #     messages = node_data.get('messages', [])
+    #     llm_info = node_data.get('llm_info', [])
+    #     for msg in messages:
+    #         if isinstance(msg, AIMessage):
+    #             if msg.usage_metadata:
+    #                 usage_data = msg.usage_metadata
+    #                 om_arg["total_token"] = usage_data.get("total_tokens", "")
+    #                 om_arg["input_token"] = usage_data.get("input_tokens", "")
+    #                 om_arg["output_token"] = usage_data.get("output_tokens", "")
 
-        if llm_info:
-            om_arg["llm"] = llm_info.get("llm", "")
-            om_arg["model"] = llm_info.get("model", "")
-            om_arg["agent"] = llm_info.get("agent", "")
-            om_arg["data_source"] = llm_info.get("data_source", "")
-        if om_arg:
-            openmeter_obj.ingest_llm_call(args=om_arg)
+    #     if llm_info:
+    #         om_arg["llm"] = llm_info.get("llm", "")
+    #         om_arg["model"] = llm_info.get("model", "")
+    #         om_arg["agent"] = llm_info.get("agent", "")
+    #         om_arg["data_source"] = llm_info.get("data_source", "")
+    #     if om_arg:
+    #         openmeter_obj.ingest_llm_call(args=om_arg)
             
             
 

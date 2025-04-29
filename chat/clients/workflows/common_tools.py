@@ -233,8 +233,7 @@ def get_db_schema(state: Annotated[dict, InjectedState]) -> str:
     
     """
     
-    print("*"*50, "get_db_schema", "*"*50)
-    print("state: ", state)
+    
     try:
         context = PipelineState.get_workflow_context_object_from_state(state)
         company = context.company
@@ -273,7 +272,6 @@ def neo4j_cypher_executor(cypher_query: str, state: Annotated[dict, InjectedStat
     """
     try:
         
-        print("CYPHER QUERY: ", cypher_query)
         
         context = PipelineState.get_workflow_context_object_from_state(state)
         

@@ -12,25 +12,22 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
-
 # python manage.py kafka_dynamic_hook_consumer dynamic_hook_queue
-
 class Command(BaseCommand):
     help = "Kafka Dynamic Hook Consumer"
     QUEUE_NAME = 'dynamic_hook_queue'
     
     def add_arguments(self, parser):
-        parser.add_argument('topic', type=str, nargs='?', default=self.QUEUE_NAME)
-
+        parser.add_argument('queue', type=str, nargs='?', default=self.QUEUE_NAME,
+                           help='Name of the Kafka queue to consume (default: dynamic_hook_queue)')
 
     def handle(self, *args, **options):
         # Start a Sentry transaction for tracing
-        
         self.init_logger('dynamic_hook_info')
         
         with start_transaction(op="kafka_consumer", name="Kafka Dynamic Hook Consumer"):
             try:
-                queue_name = options.get('topic')
+                queue_name = options.get('queue')
                 if not queue_name:
                     self.stdout.write(self.style.ERROR('Invalid Queue Name'))
                     return

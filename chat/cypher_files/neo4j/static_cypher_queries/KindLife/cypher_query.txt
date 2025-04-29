@@ -1,0 +1,10 @@
+CALL db.index.fulltext.queryNodes('productDescriptionIndex', '{question}') YIELD node as p, score
+WHERE p.product_embedding IS NOT NULL
+LIMIT 3
+
+CALL db.index.vector.queryNodes('productDescriptionIndex', 5, p.product_embedding)
+YIELD node AS product, score as similarity_score
+MATCH (product)-[:BRANDED_BY]->(brand:Brand)
+WHERE similarity_score > 0.9
+RETURN product.product_title as name, product.product_description, product.selling_price, product.popularity_score, similarity_score, 
+brand.name AS brand_name, product.product_url as product_url, product.image_url as image_url
