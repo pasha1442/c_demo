@@ -8,6 +8,8 @@ import json
 from basics.utils import Registry
 from backend.constants import CURRENT_API_COMPANY
 import logging
+from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
+
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ class KafkaDynamicHookConsumer(BaseKafkaService):
         self.queue_name = queue_name
         self.failure_queue_name = BaseKafkaService().get_failure_queue_name(queue_name)
         self.base_kafka_service = BaseKafkaService()
+        self.state_manager = GlobalCompanyStateManager()
         logger.info(f"Initialized KafkaDynamicHookConsumer with queue: {queue_name}")
 
     async def consume_queue(self, queue_name=None):

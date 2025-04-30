@@ -6,14 +6,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SnoopingOutgoingMsgHook(BaseDynamicHooks):
-   
+    
     async def execute(self, company, state):
         
         logger.info(f"Processing outgoing message hook for {state.get('client_identifier')}")
         
-        webhook_url = self._get_webhook_url(company)
+        webhook_url = self._get_webhook_url(company, 'snooping_outgoing_webhook_url')
         if not webhook_url:
-            logger.warning(f"No webhook URL configured for company {company.id}")
+            logger.warning(f"No outgoing webhook URL configured for company {company.id}")
             return
             
         message_data = {
@@ -30,15 +30,20 @@ class SnoopingOutgoingMsgHook(BaseDynamicHooks):
         
         await self._forward_to_webhook(webhook_url, message_data)
     
-    def _get_webhook_url(self, company):
-        """Get the webhook URL from company attributes"""
-        if hasattr(company, 'webhook_config') and company.webhook_config:
-            config = json.loads(company.webhook_config) if isinstance(company.webhook_config, str) else company.webhook_config
-            return config.get('snooping_outgoing_webhook_url')
+    def _get_webhook_url(self, company, webhook_key):
+        
+        if hasattr(company, 'webhook_config'):
+            config = company.webhook_config
+            if isinstance(config, str):
+                try:
+                    config = json.loads(config)
+                except json.JSONDecodeError:
+                    return None
+            return config.get(webhook_key)
         return None
         
     async def _forward_to_webhook(self, webhook_url, data):
-        """Forward message data to webhook URL"""
+        
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(webhook_url, json=data) as response:
@@ -46,6 +51,6 @@ class SnoopingOutgoingMsgHook(BaseDynamicHooks):
                         response_text = await response.text()
                         logger.error(f"Webhook error: {response.status}, {response_text}")
                     else:
-                        logger.info(f"Successfully forwarded message to webhook")
+                        logger.info(f"Successfully forwarded outgoing message to webhook")
         except Exception as e:
             logger.error(f"Error forwarding to webhook: {str(e)}")

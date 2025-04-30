@@ -1,5 +1,6 @@
 import asyncio
 import json
+from datetime import datetime
 from langchain_core.messages import AIMessage
 from chat import utils
 from chat.clients.workflows.workflow_factory import WorkflowFactory
@@ -11,20 +12,45 @@ from chat.services.kafka_workflow_response_handler import WhatsAppMessageState
 from chat.workflow_context import WorkflowContext
 from chat.workflow_utils import extract_tool_info, push_waha_message_to_queue, remove_final_answer, push_llminfo_to_openmeter
 from company.models import Company
-from langchain_core.messages import  AIMessageChunk
+from langchain_core.messages import AIMessageChunk
 from company.utils import CompanyUtils
 from metering.services.openmeter import OpenMeter
 from langfuse.decorators import observe, langfuse_context
 from asgiref.sync import sync_to_async, async_to_sync
 from backend.logger import Logger
+from backend.services.kafka_service import BaseKafkaService
+from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
 
 workflow_logger = Logger(Logger.WORKFLOW_LOG)
 
 
 class WorkflowRunner:
     def __init__(self):
-        pass
+        self.state_manager = GlobalCompanyStateManager()
+        self.kafka_service = BaseKafkaService()
 
+    def _trigger_dynamic_hook(self, hook_type, company, **params):
+        """
+        Helper method to trigger a dynamic hook by publishing to Kafka
+        
+        Args:
+            hook_type: Type of hook to trigger
+            company: Company object
+            params: Additional parameters for the hook
+        """
+        try:
+            hook_payload = {
+                "hook_type": hook_type,
+                "company_id": company.id,
+                "timestamp": datetime.now().isoformat(),
+                **params
+            }
+            
+            self.kafka_service.push(topic_name="dynamic_hook_queue", message=hook_payload)
+            workflow_logger.add(f"Triggered {hook_type} hook for company {company.name}")
+            
+        except Exception as e:
+            workflow_logger.add(f"Error triggering {hook_type} hook: {str(e)}")
 
     @observe()            
     async def run_workflow(
@@ -48,6 +74,21 @@ class WorkflowRunner:
     
         print(f"\ncompany in run_workflow: ",company,"\n")
         workflow_logger.add(f"company in run_workflow: {company}")
+        
+        company_state = self.state_manager.get_company_state(str(company.id))
+        
+        if initial_message:
+            self._trigger_dynamic_hook(
+                hook_type="snooping_incoming_msg",
+                company=company,
+                session_id=session_id,
+                client_identifier=client_identifier,
+                message=initial_message,
+                message_id=message_data.get('message_id') if message_data else None,
+                message_type=message_data.get('message_type') if message_data else "text",
+                media_url=message_data.get('message_metadata', {}).get('media_url', '') if message_data else "",
+                customer_mobile=mobile_number
+            )
         
         # saving initial message in history
         extra_save_data = {
@@ -174,6 +215,18 @@ class WorkflowRunner:
                                 client_identifier=workflow_context.extra_save_data['client_identifier'],
                                 api_controller=openmeter_obj.api_controller
                             )
+                            
+                            self._trigger_dynamic_hook(
+                                hook_type="snooping_outgoing_msg",
+                                company=company,
+                                session_id=workflow_context.session_id,
+                                client_identifier=workflow_context.extra_save_data['client_identifier'],
+                                message=message.content,
+                                message_id=extra_save_data.get('message_id', ''),
+                                message_type="text",
+                                customer_mobile=mobile_number
+                            )
+                            
                         elif message.additional_kwargs.get('tool_calls'):
                             tool_calls = message.additional_kwargs.get('tool_calls')
                             tool_info = extract_tool_info(tool_calls)
@@ -194,6 +247,16 @@ class WorkflowRunner:
                             
             push_llminfo_to_openmeter(node_data, openmeter_obj)
             
+        if final_output_nodes and len(chat_history) > 5: 
+            self._trigger_dynamic_hook(
+                hook_type="summary_generation",
+                company=company,
+                session_id=workflow_context.session_id,
+                client_identifier=workflow_context.extra_save_data['client_identifier'],
+                customer_mobile=mobile_number,
+                api_route=openmeter_obj.api_controller.api_route if hasattr(openmeter_obj.api_controller, 'api_route') else None
+            )
+            
     @observe()
     async def get_response(self, app, chat_history_processed, company, mobile_number, extra_save_data, openmeter_obj, session_id, workflow_context, message_provider):
         
@@ -211,6 +274,8 @@ class WorkflowRunner:
         chat_saver = ChatMessageSaverService(company=company, api_controller=openmeter_obj.api_controller)
 
         waha_start_typing_message_sent = False
+        
+        last_activity = datetime.now()
         
         async for event in events:
             if '__workflow_start__' in event: continue
@@ -280,6 +345,17 @@ class WorkflowRunner:
                             )
 
                             extra_save_data['message_id'] = conv_id
+                            
+                            self._trigger_dynamic_hook(
+                                hook_type="snooping_outgoing_msg",
+                                company=company,
+                                session_id=session_id,
+                                client_identifier=workflow_context.extra_save_data['client_identifier'],
+                                message=cleaned_content_,
+                                message_id=str(conv_id),
+                                message_type="text",
+                                customer_mobile=mobile_number
+                            )
 
                         elif message.additional_kwargs.get('tool_calls'):
                             tool_calls = message.additional_kwargs.get('tool_calls')
@@ -302,6 +378,7 @@ class WorkflowRunner:
                                 )
                                 
                 push_llminfo_to_openmeter(node_data, openmeter_obj)
+                
         print("\n\nprinting response\n")
         print(ai_output)
         workflow_logger.add("printing stream")
@@ -315,5 +392,16 @@ class WorkflowRunner:
     
         print(response)
         workflow_logger.add(response)
-        # return response
-    
+        
+        if ai_output:
+            self._trigger_dynamic_hook(
+                hook_type="summary_generation",
+                company=company,
+                session_id=session_id,
+                client_identifier=workflow_context.extra_save_data['client_identifier'],
+                customer_mobile=mobile_number,
+                api_route=openmeter_obj.api_controller.api_route if hasattr(openmeter_obj.api_controller, 'api_route') else None
+            )
+            
+        company_state = self.state_manager.get_company_state(str(company.id))
+        inactivity_threshold = company_state.get("hook_constants", {}).get("nudging_threshold_minutes", 60)

@@ -1,4 +1,8 @@
 from backend.services.kafka_service import BaseKafkaService
+import logging
+import json
+
+logger = logging.getLogger(__name__)
 
 
 class BaseDynamicHooks:
@@ -11,12 +15,15 @@ class BaseDynamicHooks:
     def consume(self):
         pass
     
-    async def execute(self, company, state):
-        """
-        Base method that must be implemented by all hook classes
+    async def process(self, company, state):
         
-        Args:
-            company: The company object
-            state: The state data containing hook parameters
-        """
+        try:
+            logger.info(f"Processing {state.get('hook_type')} hook for company {company.name}")
+            await self.execute(company, state)
+            logger.info(f"Successfully executed {state.get('hook_type')} hook")
+        except Exception as e:
+            logger.error(f"Error executing {state.get('hook_type')} hook: {str(e)}")
+            raise
+    
+    async def execute(self, company, state):
         raise NotImplementedError("Hook classes must implement execute method")
