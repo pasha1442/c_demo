@@ -1,6 +1,7 @@
 from backend.services.kafka_service import BaseKafkaService
 from backend.settings.base import ENABLE_LANGFUSE_TRACING
 from chat.dynamichooks.dynamic_hook import DynamicHook
+from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
 from company.utils import CompanyUtils
 from langfuse.decorators import langfuse_context
 import asyncio
@@ -8,10 +9,10 @@ import json
 from basics.utils import Registry
 from backend.constants import CURRENT_API_COMPANY
 import logging
-from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
-
 
 logger = logging.getLogger(__name__)
+
+state_manager = GlobalCompanyStateManager()
 
 class KafkaDynamicHookConsumer(BaseKafkaService):
     """
@@ -22,7 +23,6 @@ class KafkaDynamicHookConsumer(BaseKafkaService):
         self.queue_name = queue_name
         self.failure_queue_name = BaseKafkaService().get_failure_queue_name(queue_name)
         self.base_kafka_service = BaseKafkaService()
-        self.state_manager = GlobalCompanyStateManager()
         logger.info(f"Initialized KafkaDynamicHookConsumer with queue: {queue_name}")
 
     async def consume_queue(self, queue_name=None):
@@ -67,6 +67,7 @@ class KafkaDynamicHookConsumer(BaseKafkaService):
             _payload = json.loads(message.value)
             company_id = _payload.get("company_id")
             if company_id:
+                company_state = state_manager.get_company_state(str(company_id))
                 await self.process_message(company_id, _payload)
             else:
                 raise ValueError("Missing company_id in payload")

@@ -1,6 +1,7 @@
 # chat/dynamichooks/hooks/nudging_hook.py
 
 from chat.dynamichooks.base_dynamic_hooks import BaseDynamicHooks
+from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
 import logging
 import json
 from asgiref.sync import sync_to_async
@@ -8,6 +9,8 @@ from api_controller.models import ApiController
 from chat.services.kafka_workflow_response_handler import KafkaWorkflowResponseHandler, WhatsAppMessageState
 
 logger = logging.getLogger(__name__)
+
+state_manager = GlobalCompanyStateManager()
 
 class NudgingHook(BaseDynamicHooks):
     """
@@ -80,27 +83,67 @@ class NudgingHook(BaseDynamicHooks):
             logger.error(f"Error sending nudge message: {e}")
     
     def _get_nudge_message(self, company, template_name):
-        """Get the appropriate nudge message template"""
+        """Get the appropriate nudge message template from state manager or company object"""
         
         default_nudge = "Hey there! Just checking if you need any further assistance?"
         
+        company_id = str(company.id)
+        company_state = state_manager.get_company_state(company_id)
+        
+        if company_state:
+            templates = company_state.get('message_templates', {})
+            if template_name in templates:
+                return templates.get(template_name)
+                
+            hook_constants = company_state.get('hook_constants', {})
+            default_template = hook_constants.get('default_nudge_template', 'default_nudge')
+            if default_template in templates:
+                return templates.get(default_template)
+        
         if hasattr(company, 'message_templates') and company.message_templates:
-            templates = json.loads(company.message_templates) if isinstance(company.message_templates, str) else company.message_templates
-            return templates.get(template_name, default_nudge)
-            
+            try:
+                templates = (
+                    json.loads(company.message_templates) 
+                    if isinstance(company.message_templates, str) 
+                    else company.message_templates
+                )
+                
+                state_manager.update_company_state(company_id, 'message_templates', templates)
+                
+                return templates.get(template_name, default_nudge)
+            except json.JSONDecodeError:
+                pass
+                
         return default_nudge
     
     def _get_provider_from_company(self, company):
         """Extract the WhatsApp provider from company settings"""
+        company_id = str(company.id)
+        company_state = state_manager.get_company_state(company_id)
+        
+        if company_state and 'whatsapp_provider' in company_state:
+            return company_state.get('whatsapp_provider')
+            
         if hasattr(company, 'whatsapp_provider'):
-            return company.whatsapp_provider
+            provider = company.whatsapp_provider
+            state_manager.update_company_state(company_id, 'whatsapp_provider', provider)
+            return provider
+            
         return "Meta"  
     
     def _get_company_phone(self, company, api_controller):
         if api_controller and hasattr(api_controller, 'phone_number'):
             return api_controller.phone_number
         
-        if hasattr(company, 'phone_number'):
-            return company.phone_number
+        company_id = str(company.id)
+        company_state = state_manager.get_company_state(company_id)
         
-        return None  
+        if company_state and 'phone_number' in company_state:
+            return company_state.get('phone_number')
+        
+        if hasattr(company, 'phone_number'):
+            phone = company.phone_number
+            state_manager.update_company_state(company_id, 'phone_number', phone)
+            return phone
+        
+        return None

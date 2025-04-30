@@ -2,8 +2,12 @@ from chat.dynamichooks.base_dynamic_hooks import BaseDynamicHooks
 import aiohttp
 import json
 import logging
+from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
+
 
 logger = logging.getLogger(__name__)
+
+state_manager = GlobalCompanyStateManager()
 
 class SnoopingIncomingMsgHook(BaseDynamicHooks):
     
@@ -32,14 +36,25 @@ class SnoopingIncomingMsgHook(BaseDynamicHooks):
     
     def _get_webhook_url(self, company, webhook_key):
         
+        company_id = str(company.id)
+        company_state = state_manager.get_company_state(company_id)
+        
+        if company_state and 'webhook_config' in company_state:
+            return company_state.get('webhook_config', {}).get(webhook_key)
+        
         if hasattr(company, 'webhook_config'):
             config = company.webhook_config
             if isinstance(config, str):
                 try:
                     config = json.loads(config)
+                    # Update state manager for future use
+                    state_manager.update_company_state(company_id, 'webhook_config', config)
+                    return config.get(webhook_key)
                 except json.JSONDecodeError:
                     return None
-            return config.get(webhook_key)
+            elif isinstance(config, dict):
+                return config.get(webhook_key)
+                
         return None
     
     async def _forward_to_webhook(self, webhook_url, data):

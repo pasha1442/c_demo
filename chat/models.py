@@ -50,6 +50,18 @@ class ConversationSession(CompanyBaseModel):
         blank=True
     )
     
+    webhook_urls = models.JSONField(null=True, blank=True, default=dict, 
+        help_text="Store webhook URLs for different purposes")
+    
+    message_templates = models.JSONField(default=dict, null=True, blank=True,
+                                         help_text="JSON configuration for message templates, e.g. {\"default_nudge\": \"Hey there! Just checking in.\"}")
+    
+    nudging_threshold_minutes = models.IntegerField(default=60, 
+                                                   help_text="Time in minutes before sending a nudge message to inactive users")
+
+    prefix = models.CharField(max_length=10)
+    comment = models.CharField(max_length=200, null=True, blank=True)
+    
     class Meta:
         db_table = 'chat_conversation_sessions'
         verbose_name = "Conversation Session"

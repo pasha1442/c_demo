@@ -71,13 +71,27 @@ class GlobalCompanyStateManager(metaclass=Singleton):
         with self._lock:
             company = Company.objects.get(id=company_id)
             
+            webhook_config = {}
+            if hasattr(company, 'webhook_config') and company.webhook_config:
+                try:
+                    if isinstance(company.webhook_config, str):
+                        webhook_config = json.loads(company.webhook_config)
+                    elif isinstance(company.webhook_config, dict):
+                        webhook_config = company.webhook_config
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.error(f"Error parsing webhook config for company {company_id}: {e}")
+            
             self._state[company_id] = {
                 "name": company.name,
                 "code": str(company.code),
-                "webhook_config": json.loads(company.webhook_config) if company.webhook_config else {},
+                "webhook_config": webhook_config,
                 "langfuse_keys": {
                     "secret_key": company.langfuse_secret_key,
                     "public_key": company.langfuse_public_key
+                },
+                "hook_constants": {
+                    "nudging_threshold_minutes": getattr(company, 'nudging_threshold_minutes', 60),
+                    "default_nudge_template": getattr(company, 'default_nudge_template', 'default_nudge')
                 },
                 "last_updated": datetime.now()
             }

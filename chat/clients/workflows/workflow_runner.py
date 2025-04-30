@@ -19,38 +19,14 @@ from langfuse.decorators import observe, langfuse_context
 from asgiref.sync import sync_to_async, async_to_sync
 from backend.logger import Logger
 from backend.services.kafka_service import BaseKafkaService
-from chat.dynamichooks.global_state_manager import GlobalCompanyStateManager
+from chat.dynamichooks.dynamic_hook import DynamicHook
 
 workflow_logger = Logger(Logger.WORKFLOW_LOG)
 
 
 class WorkflowRunner:
     def __init__(self):
-        self.state_manager = GlobalCompanyStateManager()
         self.kafka_service = BaseKafkaService()
-
-    def _trigger_dynamic_hook(self, hook_type, company, **params):
-        """
-        Helper method to trigger a dynamic hook by publishing to Kafka
-        
-        Args:
-            hook_type: Type of hook to trigger
-            company: Company object
-            params: Additional parameters for the hook
-        """
-        try:
-            hook_payload = {
-                "hook_type": hook_type,
-                "company_id": company.id,
-                "timestamp": datetime.now().isoformat(),
-                **params
-            }
-            
-            self.kafka_service.push(topic_name="dynamic_hook_queue", message=hook_payload)
-            workflow_logger.add(f"Triggered {hook_type} hook for company {company.name}")
-            
-        except Exception as e:
-            workflow_logger.add(f"Error triggering {hook_type} hook: {str(e)}")
 
     @observe()            
     async def run_workflow(
@@ -75,10 +51,8 @@ class WorkflowRunner:
         print(f"\ncompany in run_workflow: ",company,"\n")
         workflow_logger.add(f"company in run_workflow: {company}")
         
-        company_state = self.state_manager.get_company_state(str(company.id))
-        
         if initial_message:
-            self._trigger_dynamic_hook(
+            DynamicHook.trigger_dynamic_hook(
                 hook_type="snooping_incoming_msg",
                 company=company,
                 session_id=session_id,
@@ -141,9 +115,6 @@ class WorkflowRunner:
 
         send_tool_args = openmeter_obj.api_controller.is_tools_in_chat_history_enabled
         chat_history_processed = utils.strucutre_conversation_langchain(chat_history, send_tool_args = send_tool_args, reverse=False, openmeter_obj=openmeter_obj)
-        
-        # print("\n\n\nchat history sent to the chatbot",chat_history_processed,"\n\n")
-        # workflow_logger.add(f"chat history sent to the chatbot{chat_history_processed}")
 
         workflow_factory_obj = WorkflowFactory()
 
@@ -216,7 +187,7 @@ class WorkflowRunner:
                                 api_controller=openmeter_obj.api_controller
                             )
                             
-                            self._trigger_dynamic_hook(
+                            DynamicHook.trigger_dynamic_hook(
                                 hook_type="snooping_outgoing_msg",
                                 company=company,
                                 session_id=workflow_context.session_id,
@@ -248,7 +219,7 @@ class WorkflowRunner:
             push_llminfo_to_openmeter(node_data, openmeter_obj)
             
         if final_output_nodes and len(chat_history) > 5: 
-            self._trigger_dynamic_hook(
+            DynamicHook.trigger_dynamic_hook(
                 hook_type="summary_generation",
                 company=company,
                 session_id=workflow_context.session_id,
@@ -346,7 +317,7 @@ class WorkflowRunner:
 
                             extra_save_data['message_id'] = conv_id
                             
-                            self._trigger_dynamic_hook(
+                            DynamicHook.trigger_dynamic_hook(
                                 hook_type="snooping_outgoing_msg",
                                 company=company,
                                 session_id=session_id,
@@ -394,7 +365,7 @@ class WorkflowRunner:
         workflow_logger.add(response)
         
         if ai_output:
-            self._trigger_dynamic_hook(
+            DynamicHook.trigger_dynamic_hook(
                 hook_type="summary_generation",
                 company=company,
                 session_id=session_id,
@@ -402,6 +373,3 @@ class WorkflowRunner:
                 customer_mobile=mobile_number,
                 api_route=openmeter_obj.api_controller.api_route if hasattr(openmeter_obj.api_controller, 'api_route') else None
             )
-            
-        company_state = self.state_manager.get_company_state(str(company.id))
-        inactivity_threshold = company_state.get("hook_constants", {}).get("nudging_threshold_minutes", 60)
