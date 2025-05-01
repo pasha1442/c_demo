@@ -34,6 +34,12 @@ class Company(BaseModel):
     prefix = models.CharField(max_length=10)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
+    is_snooping_enabled = models.BooleanField(
+        default=False, 
+        verbose_name="Enable Snooping",
+        help_text="When enabled, messages will be forwarded to the specified webhook URLs for monitoring purposes."
+    )
+    
     def __str__(self):
         return f'{self.name}'
 
@@ -61,6 +67,7 @@ class Company(BaseModel):
         obj.created_at = data.get("created_at")
         obj.updated_at = data.get("updated_at")
         obj.is_active = data.get("is_active")
+        obj.is_snooping_enabled = data.get("is_snooping_enabled", False)
         return obj
 
     class Meta:
@@ -209,23 +216,28 @@ class CompanySetting(GlobalMixedCompanyBaseModel):
     KEY_CHOICE_KB_BQ_CREDENTIALS = "BQ_DB"
     KEY_CHOICE_VECTOR_DB_PINECONE_CREDENTIALS = "pinecone"
     KEY_CHOICE_VECTOR_DB_QDRANT_CREDENTIALS = "qdrant"
-    KEY_CHOICE_TWILLIO_COMPANY_NUMBER="twillio_company_number"
+    KEY_CHOICE_TWILLIO_COMPANY_NUMBER = "twillio_company_number"
+    KEY_CHOICE_SNOOPING_WEBHOOK_URLS = "snooping_webhook_urls"
+    KEY_CHOICE_QUEUE_NAME = "snooping_queue_name"
 
-    KEY_TYPE_CHOICES =(
-    (KEY_CHOICE_WHATSAPP_PROVIDER, "WhatsApp Provider"),
-    (KEY_CHOICE_KG_NEO4J_CREDENTIALS, "Knowledge Graph Neo4j"),
-    (KEY_CHOICE_KB_SQL_CREDENTIALS, "Knowledge Base SQL"),
-    (KEY_CHOICE_VECTOR_DB_PINECONE_CREDENTIALS, "Pinecone"),
-    (KEY_CHOICE_VECTOR_DB_QDRANT_CREDENTIALS, "Qdrant"),
-    (KEY_CHOICE_TWILLIO_COMPANY_NUMBER, "Twillio Company Number"), 
-    (KEY_CHOICE_KB_BQ_CREDENTIALS, "Knowledge Base Big Query")
+    KEY_TYPE_CHOICES = (
+        (KEY_CHOICE_WHATSAPP_PROVIDER, "WhatsApp Provider"),
+        (KEY_CHOICE_KG_NEO4J_CREDENTIALS, "Knowledge Graph Neo4j"),
+        (KEY_CHOICE_KB_SQL_CREDENTIALS, "Knowledge Base SQL"),
+        (KEY_CHOICE_VECTOR_DB_PINECONE_CREDENTIALS, "Pinecone"),
+        (KEY_CHOICE_VECTOR_DB_QDRANT_CREDENTIALS, "Qdrant"),
+        (KEY_CHOICE_TWILLIO_COMPANY_NUMBER, "Twillio Company Number"),
+        (KEY_CHOICE_KB_BQ_CREDENTIALS, "Knowledge Base Big Query"),
+        (KEY_CHOICE_SNOOPING_WEBHOOK_URLS, "Snooping Webhook URLs"),
+        (KEY_CHOICE_QUEUE_NAME, "Snooping Queue Name")
     )
+    
     key = models.CharField(max_length=100, choices=KEY_TYPE_CHOICES, blank=True)
     value = models.JSONField(default=dict)
 
     class Meta:
         db_table = "company_settings"
-
+        
 
 class CompanySettingProxyModel(CompanySetting):
     objects = models.Manager()
@@ -252,7 +264,7 @@ class CompanyUserManager(UserManager):
     #     # Filter users based on the active company OR global status, but EXCLUDE superusers
     #     return qs.filter(
     #         Q(company=active_company) | Q(is_global=True),
-    #         is_superuser=False  # Exclude superusers from the list
+    #         is_superuser=False # Exclude superusers from the list
     #     )
 
     # class Meta:

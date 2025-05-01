@@ -1,30 +1,29 @@
-# chat/dynamichooks/global_state_manager.py
-
 from datetime import datetime
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from threading import Lock
 import logging
 from basics.utils import Singleton
-from company.models import Company
+from company.models import Company, CompanySetting
 
 logger = logging.getLogger(__name__)
 
+
 class Singleton(type):
-    
     _instances = {}
-    
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
 
 class GlobalCompanyStateManager(metaclass=Singleton):
     def __init__(self):
         self._state: Dict[str, Dict[str, Any]] = {}
         self._lock = Lock()
         self._state_ttl_minutes = 30
-    
+
     def get_company_state(self, company_id: str) -> Dict[str, Any]:
         with self._lock:
             if company_id in self._state:
@@ -36,51 +35,38 @@ class GlobalCompanyStateManager(metaclass=Singleton):
                             return self.fetch_and_cache_company_details(company_id)
                         except Exception as e:
                             logger.error(f"Error refreshing company state: {e}")
-                
                 return self._state[company_id]
             else:
                 self._state[company_id] = {
-                    "hook_constants": {
-                        "nudging_threshold_minutes": 60,
-                        "default_nudge_template": "default_nudge"
-                    },
-                    "webhook_urls": {},
-                    "last_updated": datetime.now(),
-                    "metadata": {}
+                    "last_updated": datetime.now()
                 }
-                
                 try:
                     return self.fetch_and_cache_company_details(company_id)
                 except Exception as e:
                     logger.error(f"Error fetching company details: {e}")
                     return self._state[company_id]
 
-    
     def update_company_state(self, company_id: str, key: str, value: Any):
         with self._lock:
             if company_id not in self._state:
                 self.get_company_state(company_id)
-            
+
             self._state[company_id][key] = value
             self._state[company_id]['last_updated'] = datetime.now()
-    
+
     def fetch_and_cache_company_details(self, company_id: str):
-        """
-        Centralized method to fetch and cache company details
-        """
         with self._lock:
             company = Company.objects.get(id=company_id)
-            
+
+            # Load webhook config from CompanySetting
             webhook_config = {}
-            if hasattr(company, 'webhook_config') and company.webhook_config:
-                try:
-                    if isinstance(company.webhook_config, str):
-                        webhook_config = json.loads(company.webhook_config)
-                    elif isinstance(company.webhook_config, dict):
-                        webhook_config = company.webhook_config
-                except (json.JSONDecodeError, TypeError) as e:
-                    logger.error(f"Error parsing webhook config for company {company_id}: {e}")
-            
+            setting = CompanySetting.objects.filter(
+                company=company,
+                key=CompanySetting.KEY_CHOICE_SNOOPING_WEBHOOK_URLS
+            ).first()
+            if setting and isinstance(setting.value, dict):
+                webhook_config = setting.value
+
             self._state[company_id] = {
                 "name": company.name,
                 "code": str(company.code),
@@ -89,11 +75,7 @@ class GlobalCompanyStateManager(metaclass=Singleton):
                     "secret_key": company.langfuse_secret_key,
                     "public_key": company.langfuse_public_key
                 },
-                "hook_constants": {
-                    "nudging_threshold_minutes": getattr(company, 'nudging_threshold_minutes', 60),
-                    "default_nudge_template": getattr(company, 'default_nudge_template', 'default_nudge')
-                },
                 "last_updated": datetime.now()
             }
-            
+
             return self._state[company_id]

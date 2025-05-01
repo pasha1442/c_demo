@@ -12,7 +12,6 @@ state_manager = GlobalCompanyStateManager()
 class SnoopingIncomingMsgHook(BaseDynamicHooks):
     
     async def execute(self, company, state):
-        
         logger.info(f"Processing incoming message hook for {state.get('client_identifier')}")
         
         webhook_url = self._get_webhook_url(company, 'snooping_incoming_webhook_url')
